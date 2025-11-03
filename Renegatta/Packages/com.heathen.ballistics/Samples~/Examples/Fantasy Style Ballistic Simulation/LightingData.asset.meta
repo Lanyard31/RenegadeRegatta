@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 354f7eaa987585549a8e84e12eb8d117
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 112000000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251081
+  packageName: Ballistics 2025
+  packageVersion: 4.0.1
+  assetPath: Packages/com.heathen.ballistics/Samples~/Examples/Fantasy Style Ballistic
+    Simulation/LightingData.asset
+  uploadId: 762611

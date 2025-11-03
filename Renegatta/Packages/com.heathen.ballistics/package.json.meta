@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b67fc4cc9e0877d4eb3337aee7e2ca27
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251081
+  packageName: Ballistics 2025
+  packageVersion: 4.0.1
+  assetPath: Packages/com.heathen.ballistics/package.json
+  uploadId: 762611

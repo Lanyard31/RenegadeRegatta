@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e540f1e48615c0b4298d7014a8976d39
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251081
+  packageName: Ballistics 2025
+  packageVersion: 4.0.1
+  assetPath: Packages/com.heathen.ballistics/Runtime/Heathen.Ballistics.asmdef
+  uploadId: 762611

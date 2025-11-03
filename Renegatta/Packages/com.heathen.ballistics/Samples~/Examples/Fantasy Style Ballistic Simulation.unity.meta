@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5cc33173d06be654b94ba5c27bb238ff
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251081
+  packageName: Ballistics 2025
+  packageVersion: 4.0.1
+  assetPath: Packages/com.heathen.ballistics/Samples~/Examples/Fantasy Style Ballistic
+    Simulation.unity
+  uploadId: 762611

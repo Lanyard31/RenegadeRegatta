@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e190b737e807afd439bff0b5e33302a4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251081
+  packageName: Ballistics 2025
+  packageVersion: 4.0.1
+  assetPath: Packages/com.heathen.ballistics/Runtime/BallisticAim2D.cs
+  uploadId: 762611

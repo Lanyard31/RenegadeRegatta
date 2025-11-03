@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 822f31d1a018f584ca235503bc6ff6e2
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 112000000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251081
+  packageName: Ballistics 2025
+  packageVersion: 4.0.1
+  assetPath: Packages/com.heathen.ballistics/Samples~/Examples/(3D) Deterministic
+    Bounce Perdiction/LightingData.asset
+  uploadId: 762611

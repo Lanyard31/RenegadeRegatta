@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 17f7ebcc20a32ab419abedc1e88d16be
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251081
+  packageName: Ballistics 2025
+  packageVersion: 4.0.1
+  assetPath: Packages/com.heathen.ballistics/Samples~/Examples/Scripts/Sample3Projectile.cs
+  uploadId: 762611

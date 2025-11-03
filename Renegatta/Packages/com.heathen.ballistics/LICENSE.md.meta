@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0b7a7890012329446af2fe8ff2b8861d
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251081
+  packageName: Ballistics 2025
+  packageVersion: 4.0.1
+  assetPath: Packages/com.heathen.ballistics/LICENSE.md
+  uploadId: 762611

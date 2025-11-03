@@ -1,0 +1,24 @@
+{
+  "name": "com.heathen.ballistics",
+  "displayName": "Toolkit for Unity: Ballistics",
+  "version": "4.0.1",
+  "unity": "6000.0",
+  "author": {
+    "name": "Heathen Group",
+    "email": "support@heathen.group",
+    "url": "https://heathen.group"
+  },
+  "dependencies": {
+    "com.unity.mathematics": "1.2.5"
+  },
+  "documentationUrl": "https://kb.heathen.group/unity/physics/ballistics",
+  "keywords": [],
+  "description": "Do more with Heathen's Toolkit for Unity: Ballistics.",
+  "license": "LICENSE.md",
+  "samples": 
+	[{
+		"displayName": "Example Scenes",
+		"description": "A collection of scenes demonstrating the use of package features",
+		"path": "Samples~/Examples"
+	 }]
+}

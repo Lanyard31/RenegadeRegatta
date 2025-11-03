@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 75a867b26acc207479993e23539db46c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251081
+  packageName: Ballistics 2025
+  packageVersion: 4.0.1
+  assetPath: Packages/com.heathen.ballistics/Samples~/Examples/Scripts/Sample1BallisticBasics.cs
+  uploadId: 762611

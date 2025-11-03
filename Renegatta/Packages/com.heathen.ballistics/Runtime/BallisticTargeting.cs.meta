@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cced3b4fc5a1b6b46baf89ab6181bafa
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 251081
+  packageName: Ballistics 2025
+  packageVersion: 4.0.1
+  assetPath: Packages/com.heathen.ballistics/Runtime/BallisticTargeting.cs
+  uploadId: 762611
