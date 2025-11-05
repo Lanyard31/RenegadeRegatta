@@ -8,9 +8,20 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/_Tanks/Tutorial_Demo/Demo_Scenes/Demo_Game_Moon.unity
     guid: 7d48af2f9c7c14840abfc5e21827efaa
-  - enabled: 1
+  - enabled: 0
     path: Assets/AssetPacks/Fristy Fantasy Lands 1/Fristy Fantasy Lands 1/Scenes/1.unity
     guid: 382857a90ca3593459046e79daabfa33
+  - enabled: 0
+    path: Assets/AssetPacks/ARTnGAME/Toon Effects Maker/DEMOS URP/NEW DEMO v0.2 ALL
+      EFFECT ENCHANCED.unity
+    guid: 6a8b413974133094aaf7e9fb3f1c78f1
+  - enabled: 0
+    path: Assets/AssetPacks/AureDevGames/Water Stylized Shader Orto & Perspective
+      Camera/SceneTemplate/WaterTemplate.unity
+    guid: 975792d9461c96145899ad14015f1408
+  - enabled: 1
+    path: Assets/Scenes/SampleScene.unity
+    guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 7fb6c1c790fa04865b379a6e8ccd7e9c, type: 3}
   m_UseUCBPForAssetBundles: 0
