@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class BoatBob : MonoBehaviour
 {
-    public float amplitude = 0.2f;
-    public float frequency = 1f;
-    public float speed = 1f;
+    public float amplitude = 0.05f;
+    public float frequency = 1.82f;
+    public float speed = 0.2f;
 
     public Transform shipModel;
 
@@ -25,7 +25,7 @@ public class BoatBob : MonoBehaviour
         pos.y = height + startHeight;
 
         // Sample normal for rotation
-        Vector3 normal = WaveMath.GetWaveNormal(pos, t, amplitude, frequency, speed);
+        Vector3 normal = WaveMath.GetWaveNormal(pos, Time.time, amplitude, frequency, speed);
         shipModel.position = pos;
 
         // Orient to normal
