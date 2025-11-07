@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class BoatWaveFollower : MonoBehaviour
 {
     public SimpleWaveDeformer water;
@@ -7,17 +8,27 @@ public class BoatWaveFollower : MonoBehaviour
     [Header("Offsets and Smoothing")]
     public float heightOffset = 1f;
     public float heightMultiplier = 1f;
-    public float positionLerpSpeed = 5f;
+    public float springStrength = 30f;
+    public float damping = 5f;
     public float rotationLerpSpeed = 2f;
     [Range(0f, 1f)] public float normalInfluence = 0.3f;
 
-    void LateUpdate()
+    private Rigidbody rb;
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        rb.useGravity = true;
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+    }
+
+    void FixedUpdate()
     {
         if (!water) return;
 
-        Vector3 pos = transform.position;
+        Vector3 pos = rb.position;
 
-        // Convert world position to the local space of the water mesh
+        // Convert world position to local space of the water mesh
         Vector3 localPos = water.transform.InverseTransformPoint(pos);
 
         // Calculate wave height & normal in local space
@@ -27,15 +38,19 @@ public class BoatWaveFollower : MonoBehaviour
         // Convert the local wave height back to world space
         Vector3 worldWavePoint = water.transform.TransformPoint(new Vector3(localPos.x, localHeight, localPos.z));
 
-        // Move toward the wave height
-        Vector3 targetPos = new Vector3(pos.x, worldWavePoint.y + heightOffset, pos.z);
-        transform.position = Vector3.Lerp(pos, targetPos, Time.deltaTime * positionLerpSpeed);
+        // Target Y position
+        float targetY = worldWavePoint.y + heightOffset;
+        float yDiff = targetY - pos.y;
 
-        // Blend the wave normal with upright for stability
+        // Apply spring + damping for smooth buoyancy
+        float yForce = (yDiff * springStrength) - (rb.linearVelocity.y * damping);
+        rb.AddForce(Vector3.up * yForce, ForceMode.Acceleration);
+
+        // Rotate toward the wave normal
         Vector3 worldNormal = water.transform.TransformDirection(localNormal).normalized;
         Vector3 blendedUp = Vector3.Lerp(Vector3.up, worldNormal, normalInfluence).normalized;
-        Quaternion targetRot = Quaternion.FromToRotation(transform.up, blendedUp) * transform.rotation;
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * rotationLerpSpeed);
+        Quaternion targetRot = Quaternion.FromToRotation(transform.up, blendedUp) * rb.rotation;
+        rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, Time.fixedDeltaTime * rotationLerpSpeed));
     }
 
     float GetWaveHeightLocal(float x, float z)
@@ -68,8 +83,6 @@ public class BoatWaveFollower : MonoBehaviour
             Mathf.Cos((x * d1.x + z * d1.y) * k1 + t * water.speed1) * water.amplitude1 * k1 * d1.y +
             Mathf.Cos((x * d2.x + z * d2.y) * k2 + t * water.speed2) * water.amplitude2 * k2 * d2.y;
 
-        Vector3 n = new Vector3(-dx, 1f, -dz).normalized;
-        return n;
+        return new Vector3(-dx, 1f, -dz).normalized;
     }
-
 }
