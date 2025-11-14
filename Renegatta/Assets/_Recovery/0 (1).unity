@@ -21668,7 +21668,7 @@ Rigidbody:
   m_GameObject: {fileID: 6450137849140679559}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 1
+  m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -21681,10 +21681,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 4
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &6450137849140679564
 MonoBehaviour:
@@ -21749,6 +21749,8 @@ MonoBehaviour:
   shipRigidbody: {fileID: 6450137849140679563}
   hullTurnSpeed: 30
   hullDamping: 2
+  lateralDamping: 3
+  forwardAlignmentSpeed: 2
   sparsTurnSpeed: 50
   maxSparsAngle: 70
 --- !u!114 &6450137849140679567
@@ -21763,12 +21765,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cda644ec18476ba4ea407179f868c804, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WindPushNew
-  hull: {fileID: 5965209706671982909}
+  hull: {fileID: 9175765404694476427}
   mainSpars: {fileID: 7437264141809669760}
   windDirection: {x: 1, y: 0, z: 0}
-  maxSpeedAligned: 50
+  maxSpeedAligned: 15
   maxSpeedMisaligned: 5
-  accelerationForce: 10
+  accelerationForce: 30
+  decelerationRate: 2
 --- !u!1 &6624875785117012689
 GameObject:
   m_ObjectHideFlags: 0

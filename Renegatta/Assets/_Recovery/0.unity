@@ -21629,7 +21629,6 @@ GameObject:
   - component: {fileID: 5965209706671982909}
   - component: {fileID: 6450137849140679563}
   - component: {fileID: 6450137849140679562}
-  - component: {fileID: 6450137849140679567}
   - component: {fileID: 6450137849140679564}
   - component: {fileID: 6450137849140679565}
   - component: {fileID: 6450137849140679566}
@@ -21668,7 +21667,7 @@ Rigidbody:
   m_GameObject: {fileID: 6450137849140679559}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 1
+  m_LinearDamping: 0.25
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -21681,10 +21680,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 4
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &6450137849140679564
 MonoBehaviour:
@@ -21693,7 +21692,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6450137849140679559}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1a95e38f1090d064fab2c0e35c3dfe2d, type: 3}
   m_Name: 
@@ -21751,24 +21750,6 @@ MonoBehaviour:
   hullDamping: 2
   sparsTurnSpeed: 50
   maxSparsAngle: 70
---- !u!114 &6450137849140679567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6450137849140679559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cda644ec18476ba4ea407179f868c804, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WindPushNew
-  hull: {fileID: 5965209706671982909}
-  mainSpars: {fileID: 7437264141809669760}
-  windDirection: {x: 1, y: 0, z: 0}
-  maxSpeedAligned: 50
-  maxSpeedMisaligned: 5
-  accelerationForce: 10
 --- !u!1 &6624875785117012689
 GameObject:
   m_ObjectHideFlags: 0
