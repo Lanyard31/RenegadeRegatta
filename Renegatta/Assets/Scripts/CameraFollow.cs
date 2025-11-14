@@ -6,6 +6,11 @@ public class CameraFollow : MonoBehaviour
     public float followSpeed = 5f;   // Smooth movement speed
 
     private Vector3 offset;
+    private Vector3 desiredPosition;
+    private float currentZoom = 1f;
+    private float zoomSpeed = 1f;
+    public float minZ = -2f;
+    public float maxZ = 2f;
 
     void Start()
     {
@@ -20,10 +25,24 @@ public class CameraFollow : MonoBehaviour
         offset = transform.position - target.position;
     }
 
+    void Update()
+    {
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (Mathf.Abs(scroll) > 0.001f)
+        {
+            // Positive scroll = zoom in, negative = zoom out
+            currentZoom -= scroll * zoomSpeed;  // note the minus
+            currentZoom = Mathf.Clamp(currentZoom, minZ, maxZ);
+        }
+    }
+
+
+
     void LateUpdate()
     {
         // Keep camera offset relative to target
-        Vector3 desiredPosition = target.position + offset;
+        desiredPosition = target.position + offset;
+        desiredPosition = target.position + offset * currentZoom;
         transform.position = Vector3.Lerp(transform.position, desiredPosition, followSpeed * Time.deltaTime);
     }
 }

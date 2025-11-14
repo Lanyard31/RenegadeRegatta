@@ -48,34 +48,34 @@ public class WindPushNew : MonoBehaviour
         else if (sparsWindAngle <= 60f || sparsWindAngle >= 300f)
         {
             alignmentCategory = "Broad Reach";
-            efficiency = 0.75f;
+            efficiency = 0.8f;
         }
         else if (sparsWindAngle <= 90f || sparsWindAngle >= 270f)
         {
             alignmentCategory = "Beam Reach";
-            efficiency = 0.5f;
+            efficiency = 0.6f;
         }
-        else if (sparsWindAngle <= 120f || sparsWindAngle >= 240f)
+        else if (sparsWindAngle <= 100f || sparsWindAngle >= 200f)
         {
             alignmentCategory = "Close Reach";
-            efficiency = 0.25f;
+            efficiency = 0.35f;
         }
         else
         {
             alignmentCategory = "Misaligned";
-            efficiency = -0.5f; // Negative to slow down
+            efficiency = 0.1f; // Negative to slow down
         }
 
         // --- Push only if under max speed ---
         Vector3 forwardVel = Vector3.Dot(rb.linearVelocity, hull.right) * hull.right;
         float boatSpeed = forwardVel.magnitude;
 
-        if (boatSpeed < maxSpeedAligned && boatSpeed > 0f)
+        if (boatSpeed < (maxSpeedAligned * efficiency))
         {
             pushDir = hull.right;
             rb.AddForce(pushDir * accelerationForce * efficiency, ForceMode.Acceleration);
         }
 
-        Debug.Log($"Spars vs Wind Angle: {sparsWindAngle:F1}°, Category: {alignmentCategory}, BoatSpeed: {boatSpeed:F2}");
+        //Debug.Log($"Spars vs Wind Angle: {sparsWindAngle:F1}°, Category: {alignmentCategory}, BoatSpeed: {boatSpeed:F2}");
     }
 }
