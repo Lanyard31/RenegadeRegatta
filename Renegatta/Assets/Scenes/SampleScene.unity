@@ -4003,6 +4003,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6591882439309002451, guid: 287947d4983f9f64493d09faccf36da0, type: 3}
   m_PrefabInstance: {fileID: 337100646}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &338125394
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 338125395}
+  m_Layer: 0
+  m_Name: CannonFirePort
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &338125395
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 338125394}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.258819, y: 0, z: 0, w: 0.9659259}
+  m_LocalPosition: {x: -0.212, y: 1.798, z: 4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5965209706671982909}
+  m_LocalEulerAnglesHint: {x: -30, y: 0, z: 0}
 --- !u!1001 &358992548
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17988,6 +18019,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 791137458229262366, guid: 820b895317ee6dd499321071af6c07fd, type: 3}
   m_PrefabInstance: {fileID: 1950165333}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1960224117
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1960224118}
+  m_Layer: 0
+  m_Name: CannonFireStarboard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1960224118
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1960224117}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.9659259, z: 0.258819, w: 0}
+  m_LocalPosition: {x: -0.212, y: 1.798, z: -4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5965209706671982909}
+  m_LocalEulerAnglesHint: {x: -30, y: 180, z: 0}
 --- !u!1001 &1976313764
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21739,6 +21801,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9175765404694476427}
+  - {fileID: 338125395}
+  - {fileID: 1960224118}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6450137849140679559
@@ -21756,6 +21820,7 @@ GameObject:
   - component: {fileID: 6450137849140679567}
   - component: {fileID: 6450137849140679566}
   - component: {fileID: 6450137849140679568}
+  - component: {fileID: 6450137849140679569}
   m_Layer: 0
   m_Name: PlayerShip
   m_TagString: Untagged
@@ -21883,6 +21948,25 @@ MonoBehaviour:
   bounceForce: 8
   upwardBoost: 5
   maxBounceSpeed: 10
+--- !u!114 &6450137849140679569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6450137849140679559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ad096b23a89a3848942faa9154eb284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShipCannonController
+  cannonballPrefab: {fileID: 476286015896926800, guid: ba7779a258cc0e6488ef7592f0ead54d, type: 3}
+  starboardCannon: {fileID: 1960224118}
+  portCannon: {fileID: 338125395}
+  minForce: 10
+  maxForce: 20
+  pingPongSpeed: 10
+  lineTexture: {fileID: 2800000, guid: b6440e477af2ff84cb814cb4643e3118, type: 3}
 --- !u!1 &6624875785117012689
 GameObject:
   m_ObjectHideFlags: 0
