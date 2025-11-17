@@ -7,7 +7,11 @@ public class ShipCannonController : MonoBehaviour
     public GameObject cannonballPrefab;
     private ObjectPool<GameObject> cannonballPool;
     public Transform starboardCannon;
+    public Transform starboardCannonForward;
+    public Transform starboardCannonStern;
     public Transform portCannon;
+    public Transform portCannonForward;
+    public Transform portCannonStern;
 
     public float minForce = 10f;
     public float maxForce = 100f;
@@ -17,7 +21,12 @@ public class ShipCannonController : MonoBehaviour
     private float portForce;
 
     private TrajectoryPredictor starboardPredictor;
+    private TrajectoryPredictor starboardForwardPredictor;
+    private TrajectoryPredictor starboardSternPredictor;
+
     private TrajectoryPredictor portPredictor;
+    private TrajectoryPredictor portForwardPredictor;
+    private TrajectoryPredictor portSternPredictor;
     public Texture lineTexture;
 
 void Awake()
@@ -40,35 +49,22 @@ void Awake()
         defaultCapacity: 10,
         maxSize: 120
     );
+
+    
 }
 
     void Start()
     {
-        // Setup predictors
-        starboardPredictor = starboardCannon.gameObject.AddComponent<TrajectoryPredictor>();
-        starboardPredictor.drawDebugOnPrediction = true;
-        starboardPredictor.reuseLine = true;
-        starboardPredictor.accuracy = 0.99f;
-        starboardPredictor.lineWidth = 0.2f;
-        starboardPredictor.iterationLimit = 600;
-        starboardPredictor.lineTexture = lineTexture;
-        starboardPredictor.textureTilingMult = 0.35f;
-		starboardPredictor.lineWidth = 0.2f;
-        starboardPredictor.lineStartColor = Color.red;
+        starboardPredictor        = CreatePredictor(starboardCannon.gameObject);
+        starboardForwardPredictor = CreatePredictor(starboardCannonForward.gameObject);
+        starboardSternPredictor   = CreatePredictor(starboardCannonStern.gameObject);
 
-        portPredictor = portCannon.gameObject.AddComponent<TrajectoryPredictor>();
-        portPredictor.drawDebugOnPrediction = true;
-        portPredictor.reuseLine = true;
-        portPredictor.accuracy = 0.99f;
-        portPredictor.lineWidth = 0.2f;
-        portPredictor.iterationLimit = 600;
-        portPredictor.lineTexture = lineTexture;
-        portPredictor.textureTilingMult = 0.35f;
-		portPredictor.lineWidth = 0.2f;
-        portPredictor.lineStartColor = Color.red;
+        portPredictor        = CreatePredictor(portCannon.gameObject);
+        portForwardPredictor = CreatePredictor(portCannonForward.gameObject);
+        portSternPredictor   = CreatePredictor(portCannonStern.gameObject);
 
-        starboardForce = Mathf.PingPong(Time.time * pingPongSpeed, maxForce - minForce) + minForce;
-        portForce = Mathf.PingPong(Time.time * pingPongSpeed, maxForce - minForce) + minForce;
+        starboardForce = minForce;
+        portForce = minForce;
     }
 
     void Update()
@@ -88,8 +84,12 @@ void Awake()
         // Fire cannonballs
         if (Input.GetKeyDown(KeyCode.X))
         {
-            LaunchCannon(starboardCannon, starboardForce);
-            LaunchCannon(portCannon, portForce);
+            LaunchCannon(starboardCannon, starboardForce, 0f);
+            LaunchCannon(portCannon, portForce, 0f);
+            LaunchCannon(starboardCannonForward, starboardForce, 20f);
+            LaunchCannon(portCannonForward, portForce, 20f);
+            LaunchCannon(starboardCannonStern, starboardForce, -20f);
+            LaunchCannon(portCannonStern, portForce, -20f);
         }
     }
 
@@ -101,30 +101,42 @@ void Awake()
 
         portPredictor.debugLineDuration = Time.unscaledDeltaTime;
         portPredictor.Predict3D(portCannon.position, portCannon.forward * portForce, Physics.gravity);
+
+        starboardForwardPredictor.debugLineDuration = Time.unscaledDeltaTime;
+        starboardForwardPredictor.Predict3D(starboardCannonForward.position, starboardCannonForward.forward * starboardForce, Physics.gravity);
+
+        portForwardPredictor.debugLineDuration = Time.unscaledDeltaTime;
+        portForwardPredictor.Predict3D(portCannonForward.position, portCannonForward.forward * portForce, Physics.gravity);
+
+        starboardSternPredictor.debugLineDuration = Time.unscaledDeltaTime;
+        starboardSternPredictor.Predict3D(starboardCannonStern.position, starboardCannonStern.forward * starboardForce, Physics.gravity);
+
+        portSternPredictor.debugLineDuration = Time.unscaledDeltaTime;
+        portSternPredictor.Predict3D(portCannonStern.position, portCannonStern.forward * portForce, Physics.gravity);
     }
 
-    void LaunchCannon(Transform cannon, float force)
+    void LaunchCannon(Transform cannon, float force, float angle)
     {
         GameObject ball = cannonballPool.Get();
         ball.transform.position = cannon.position;
         ball.transform.rotation = cannon.rotation;
         Rigidbody rb = ball.GetComponent<Rigidbody>();
+        Vector3 forwardRotation = Quaternion.Euler(0, angle, 0) * cannon.forward;
         rb.linearVelocity = cannon.forward * force;
+    }
 
-        //also launch another ball slightly behind and another slightly ahead
-        GameObject ball2 = cannonballPool.Get();
-        ball2.transform.position = cannon.position + (cannon.right * 1.5f);
-        ball2.transform.rotation = cannon.rotation;
-        Rigidbody rb2 = ball2.GetComponent<Rigidbody>();
-        //adjust the cannon forward with a small forward rotation to spread them out
-        Vector3 forwardRotation = Quaternion.Euler(0, 20, 0) * cannon.forward;
-        rb2.linearVelocity = (cannon.forward + forwardRotation * force) * 0.8f;
+    private TrajectoryPredictor CreatePredictor(GameObject cannonObj)
+    {
+        var predictor = cannonObj.AddComponent<TrajectoryPredictor>();
+        predictor.drawDebugOnPrediction = true;
+        predictor.reuseLine = true;
+        predictor.accuracy = 0.99f;
+        predictor.lineWidth = 0.2f;
+        predictor.iterationLimit = 600;
+        predictor.lineTexture = lineTexture;
+        predictor.textureTilingMult = 0.35f;
+        predictor.lineStartColor = Color.red;
 
-        GameObject ball3 = cannonballPool.Get();
-        ball3.transform.position = cannon.position - (cannon.right * 1.5f);
-        ball3.transform.rotation = cannon.rotation;
-        Rigidbody rb3 = ball3.GetComponent<Rigidbody>();
-        Vector3 backwardRotation = Quaternion.Euler(0, -20, 0) * cannon.forward;
-        rb3.linearVelocity = (cannon.forward + backwardRotation * force) * 0.8f;
+        return predictor;
     }
 }

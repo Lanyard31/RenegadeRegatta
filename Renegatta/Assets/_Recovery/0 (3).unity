@@ -4206,7 +4206,7 @@ Transform:
   m_GameObject: {fileID: 394144547}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071067}
-  m_LocalPosition: {x: -0.0109, y: 0, z: -0.0007}
+  m_LocalPosition: {x: -0.007980032, y: 0, z: -0.000100016594}
   m_LocalScale: {x: 0.063599996, y: 0.0636, z: 0.0636}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -20277,7 +20277,7 @@ Transform:
   m_GameObject: {fileID: 2137691902}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071067}
-  m_LocalPosition: {x: -0.0113, y: -0, z: 0.0012}
+  m_LocalPosition: {x: -0.01079, y: 0, z: 0}
   m_LocalScale: {x: 0.063599996, y: 0.06360001, z: 0.06360001}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -22084,7 +22084,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BoatWaveFollower
   water: {fileID: 1760904251}
-  heightOffset: 1.2
+  heightOffset: 1.15
   heightMultiplier: 1
   springStrength: 30
   damping: 5
@@ -22177,11 +22177,8 @@ MonoBehaviour:
   maxSpeedAligned: 50
   accelerationForce: 10
   hullVisual: {fileID: 9175765404694476427}
-  maxHeelAngle: 25
+  maxHeelAngle: 50
   heelSmoothing: 3
-  MainBall: {fileID: 2137691906}
-  ForeBall: {fileID: 394144548}
-  emptyOffset: 0.018
 --- !u!114 &6450137849140679568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22726,10 +22723,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.0013966783
+  m_Radius: 0.001
   m_Height: 0.04
   m_Direction: 2
-  m_Center: {x: 0.0000033219158, y: -1.7763565e-17, z: 0.008}
+  m_Center: {x: 0, y: 0, z: 0.008}
 --- !u!23 &7938807121388101313
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -22845,10 +22842,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.0015061264
+  m_Radius: 0.001
   m_Height: 0.07
   m_Direction: 2
-  m_Center: {x: 0.00050612644, y: 0.001, z: 2.2204456e-18}
+  m_Center: {x: 0, y: 0.001, z: 0}
 --- !u!4 &8136835625437300682
 Transform:
   m_ObjectHideFlags: 0

@@ -28,15 +28,18 @@ public class CameraFollow : MonoBehaviour
     void Update()
     {
         float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (Mathf.Abs(scroll) > 0.001f)
+        if (scroll > 0.001f)
         {
-            // Positive scroll = zoom in, negative = zoom out
-            currentZoom -= scroll * zoomSpeed;  // note the minus
+            currentZoom -= scroll * zoomSpeed;
+            currentZoom = Mathf.Clamp(currentZoom, minZ, maxZ);
+        }
+        else if (scroll < -0.001f)
+        {
+            currentZoom -= scroll * zoomSpeed;
             currentZoom = Mathf.Clamp(currentZoom, minZ, maxZ);
         }
     }
-
-
+    
 
     void LateUpdate()
     {

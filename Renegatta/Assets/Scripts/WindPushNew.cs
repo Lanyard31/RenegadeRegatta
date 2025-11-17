@@ -12,20 +12,42 @@ public class WindPushNew : MonoBehaviour
     [SerializeField] private float maxSpeedAligned = 12f;
     [SerializeField] private float accelerationForce = 20f;
 
+    [Header("Heel")]
+    [SerializeField] private Transform hullVisual;
+    [SerializeField] private float maxHeelAngle = 8f;     // visual-only tilt, in degrees
+    [SerializeField] private float heelSmoothing = 3f;    // higher = snappier
+    private float currentHeel;
+
+    [Header("Sail Fill")]
+    [SerializeField] private Transform MainBall;
+    [SerializeField] private Transform ForeBall;
+    [SerializeField] private float emptyOffset = 0.5f; // adjust to taste
+    private Vector3 mainBallFullPos;
+    private Vector3 foreBallFullPos;
+    private Vector3 mainBallEmptyPos;
+    private Vector3 foreBallEmptyPos;
+
     private Rigidbody rb;
     Vector3 pushDir;
+    Vector3 windDir;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        windDir = Vector3.right;
     }
 
+    void Start()
+    {
+        mainBallFullPos = MainBall.localPosition + new Vector3(emptyOffset, 0, 0);
+        foreBallFullPos = ForeBall.localPosition + new Vector3(emptyOffset, 0, 0);
+
+        mainBallEmptyPos = MainBall.localPosition - new Vector3(emptyOffset, 0, 0);
+        foreBallEmptyPos = ForeBall.localPosition - new Vector3(emptyOffset, 0, 0);
+    }
 
     void FixedUpdate()
     {
-        // Wind points along +X
-        Vector3 windDir = Vector3.right;
-
         // Flatten sail forward to horizontal plane
         Vector3 sparsForward = Vector3.ProjectOnPlane(mainSpars.up, Vector3.up).normalized;
 
@@ -58,13 +80,16 @@ public class WindPushNew : MonoBehaviour
         else if (sparsWindAngle <= 100f || sparsWindAngle >= 200f)
         {
             alignmentCategory = "Close Reach";
-            efficiency = 0.35f;
+            efficiency = 0.4f;
         }
         else
         {
             alignmentCategory = "Misaligned";
             efficiency = 0.1f; // Negative to slow down
         }
+
+        ApplyWindHeel(sparsWindAngle, efficiency, alignmentCategory);
+        AdjustWindBalls(efficiency, alignmentCategory);
 
         // --- Push only if under max speed ---
         Vector3 forwardVel = Vector3.Dot(rb.linearVelocity, hull.right) * hull.right;
@@ -76,6 +101,49 @@ public class WindPushNew : MonoBehaviour
             rb.AddForce(pushDir * accelerationForce * efficiency, ForceMode.Acceleration);
         }
 
-        //Debug.Log($"Spars vs Wind Angle: {sparsWindAngle:F1}°, Category: {alignmentCategory}, BoatSpeed: {boatSpeed:F2}");
+        Debug.Log($"Spars vs Wind Angle: {sparsWindAngle:F1}°, Category: {alignmentCategory}, BoatSpeed: {boatSpeed:F2}");
+    }
+
+    void ApplyWindHeel(float sparsWindAngle, float efficiency, string alignmentCategory)
+    {
+        if (alignmentCategory == "Misaligned") return;
+
+        // Compute how much the wind hits the side of the hull
+        // Wind from side: 0 = wind ahead/behind, 1 = wind perfectly from side
+        Vector3 windRight = Vector3.Cross(Vector3.up, windDir).normalized; // right-facing vector relative to wind
+        float windFromSide = Mathf.Abs(Vector3.Dot(hull.right, windRight));
+        float sideSign = Mathf.Sign(Vector3.Dot(hull.right, windRight)); // +1 = starboard, -1 = port
+
+        // Scale by sail efficiency
+        float heelStrength = windFromSide * efficiency;
+        float targetHeel = maxHeelAngle * heelStrength * sideSign;
+
+        // Smooth the heel so it doesn't snap
+        currentHeel = Mathf.Lerp(currentHeel, targetHeel, Time.fixedDeltaTime * heelSmoothing);
+
+        Quaternion heelRot = Quaternion.Euler(-90f + currentHeel, 0f, 0f);
+        hullVisual.localRotation = heelRot;
+
+        //Debug.Log($"Heel: {currentHeel:F1}°, windFromSide: {windFromSide:F2}, sideSign: {sideSign}");
+    }
+
+    void AdjustWindBalls(float efficiency, string alignmentCategory)
+    {
+        if (alignmentCategory == "Misaligned")
+        {
+            efficiency = 0f;
+        }
+        else
+        {
+            efficiency = Mathf.Lerp(0.35f, 1f, Mathf.Clamp01(efficiency));
+        }
+
+        // Calculate the efficiency-based target positions
+        Vector3 mainTargetPos = Vector3.Lerp(mainBallEmptyPos, mainBallFullPos, efficiency);
+        Vector3 foreTargetPos = Vector3.Lerp(foreBallEmptyPos, foreBallFullPos, efficiency);
+
+        // Smoothly move toward the targets
+        MainBall.localPosition = Vector3.Lerp(MainBall.localPosition, mainTargetPos, Time.fixedDeltaTime);
+        ForeBall.localPosition = Vector3.Lerp(ForeBall.localPosition, foreTargetPos, Time.fixedDeltaTime);
     }
 }

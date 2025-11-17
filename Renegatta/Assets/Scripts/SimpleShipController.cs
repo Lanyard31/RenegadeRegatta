@@ -38,12 +38,12 @@ public class SimpleShipController : MonoBehaviour
         if (Input.GetKey(KeyCode.A)) turnInput = -1f;
         if (Input.GetKey(KeyCode.D)) turnInput = 1f;
 
-        // Apply torque for smooth physics rotation
         float desiredYaw = turnInput * hullTurnSpeed;
         Vector3 currentAngularVelocity = shipRigidbody.angularVelocity;
         float newYawVelocity = Mathf.Lerp(currentAngularVelocity.y, Mathf.Deg2Rad * desiredYaw, Time.fixedDeltaTime * hullDamping);
 
-        shipRigidbody.angularVelocity = new Vector3(0f, newYawVelocity, 0f);
+        shipRigidbody.angularVelocity = new Vector3(currentAngularVelocity.x, newYawVelocity, currentAngularVelocity.z);
+
     }
 
     private void HandleSparsRotation()
