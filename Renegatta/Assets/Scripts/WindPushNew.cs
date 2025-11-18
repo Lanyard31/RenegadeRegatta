@@ -101,7 +101,7 @@ public class WindPushNew : MonoBehaviour
             rb.AddForce(pushDir * accelerationForce * efficiency, ForceMode.Acceleration);
         }
 
-        Debug.Log($"Spars vs Wind Angle: {sparsWindAngle:F1}°, Category: {alignmentCategory}, BoatSpeed: {boatSpeed:F2}");
+        //Debug.Log($"Spars vs Wind Angle: {sparsWindAngle:F1}°, Category: {alignmentCategory}, BoatSpeed: {boatSpeed:F2}");
     }
 
     void ApplyWindHeel(float sparsWindAngle, float efficiency, string alignmentCategory)

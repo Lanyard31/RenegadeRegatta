@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Pool;
+using System.Collections;
 
 public class ShipCannonController : MonoBehaviour
 {
@@ -12,13 +13,22 @@ public class ShipCannonController : MonoBehaviour
     public Transform portCannon;
     public Transform portCannonForward;
     public Transform portCannonStern;
+    [SerializeField] Rigidbody shipRigidbody;
+    private static readonly Vector3 poolInitPos = new Vector3(1000f, 1000f, 1000f);
+
+    [Header("Reload Settings")]
+    public float initialDelay = 3f;        // big first-time delay
+    public float reloadDuration = 1.5f;    // normal reload time
+    private float reloadTimer;
+    private bool cannonsReady = false;
 
     public float minForce = 10f;
     public float maxForce = 100f;
     public float pingPongSpeed = 2f; // how fast the force oscillates
-
     private float starboardForce;
     private float portForce;
+    private float starboardDir = 1f; // 1 = increasing, -1 = decreasing
+    private float portDir = 1f;
 
     private TrajectoryPredictor starboardPredictor;
     private TrajectoryPredictor starboardForwardPredictor;
@@ -29,68 +39,125 @@ public class ShipCannonController : MonoBehaviour
     private TrajectoryPredictor portSternPredictor;
     public Texture lineTexture;
 
-void Awake()
-{
-    // Create a runtime parent for all cannonballs
-    GameObject poolParent = new GameObject("Cannonballs");
+    [SerializeField] float fadeSpeed = 6f;
 
-    cannonballPool = new ObjectPool<GameObject>(
-        createFunc: () =>
-        {
-            // Instantiate under the parent for organization
-            GameObject obj = Instantiate(cannonballPrefab, poolParent.transform);
-            obj.GetComponent<Cannonball>().SetPool(cannonballPool); // optional if bullets manage themselves
-            return obj;
-        },
-        actionOnGet: obj => obj.SetActive(true),
-        actionOnRelease: obj => obj.SetActive(false),
-        actionOnDestroy: obj => Destroy(obj),
-        collectionCheck: false,
-        defaultCapacity: 10,
-        maxSize: 120
-    );
+    static readonly Color baseStart = Color.red;
+    static readonly Color baseEnd = Color.orange;
+    private float predictorTargetAlpha = 0f;
 
-    
-}
+    void Awake()
+    {
+        // Create a runtime parent for all cannonballs
+        GameObject poolParent = new GameObject("Cannonballs");
+
+        cannonballPool = new ObjectPool<GameObject>(
+            createFunc: () =>
+            {
+                // Instantiate under the parent for organization
+                GameObject obj = Instantiate(cannonballPrefab, poolParent.transform);
+                obj.transform.position = poolInitPos;
+                obj.GetComponent<Cannonball>().SetPool(cannonballPool); // optional if bullets manage themselves
+                return obj;
+            },
+            actionOnGet: obj => {},
+            actionOnRelease: obj => {
+                obj.SetActive(false);
+                obj.transform.position = poolInitPos;
+            },
+            actionOnDestroy: obj => Destroy(obj),
+            collectionCheck: true,
+            defaultCapacity: 12,
+            maxSize: 200
+        );
+    }
 
     void Start()
     {
-        starboardPredictor        = CreatePredictor(starboardCannon.gameObject);
+        starboardPredictor = CreatePredictor(starboardCannon.gameObject);
         starboardForwardPredictor = CreatePredictor(starboardCannonForward.gameObject);
-        starboardSternPredictor   = CreatePredictor(starboardCannonStern.gameObject);
+        starboardSternPredictor = CreatePredictor(starboardCannonStern.gameObject);
 
-        portPredictor        = CreatePredictor(portCannon.gameObject);
+        portPredictor = CreatePredictor(portCannon.gameObject);
         portForwardPredictor = CreatePredictor(portCannonForward.gameObject);
-        portSternPredictor   = CreatePredictor(portCannonStern.gameObject);
+        portSternPredictor = CreatePredictor(portCannonStern.gameObject);
 
-        starboardForce = minForce;
-        portForce = minForce;
+        starboardForce = (minForce + maxForce) / 2f;
+        portForce = (minForce + maxForce) / 2f;
+
+        reloadTimer = initialDelay;
+        cannonsReady = false;
+        SetPredictorsVisible(false);
     }
 
     void Update()
     {
-        // Ping-pong starboard force when holding C
-        if (Input.GetKey(KeyCode.C))
+        // Handle reload timer
+        if (!cannonsReady)
         {
-            starboardForce = Mathf.PingPong(Time.time * pingPongSpeed, maxForce - minForce) + minForce;
+            reloadTimer -= Time.deltaTime;
+            if (reloadTimer <= 0f)
+            {
+                cannonsReady = true;
+                SetPredictorsVisible(true);
+            }
         }
 
-        // Ping-pong port force when holding Z
-        if (Input.GetKey(KeyCode.Z))
-        {
-            portForce = Mathf.PingPong(Time.time * pingPongSpeed, maxForce - minForce) + minForce;
-        }
+        UpdatePredictorFade();
+        UpdatePredictorLines();
 
         // Fire cannonballs
         if (Input.GetKeyDown(KeyCode.X))
         {
-            LaunchCannon(starboardCannon, starboardForce, 0f);
-            LaunchCannon(portCannon, portForce, 0f);
-            LaunchCannon(starboardCannonForward, starboardForce, 20f);
-            LaunchCannon(portCannonForward, portForce, 20f);
-            LaunchCannon(starboardCannonStern, starboardForce, -20f);
-            LaunchCannon(portCannonStern, portForce, -20f);
+            if (!cannonsReady) return;
+
+            cannonsReady = false;
+            SetPredictorsVisible(false);
+
+            reloadTimer = reloadDuration;
+            FireAllCannons();
         }
+    }
+
+    private void UpdatePredictorLines()
+    {
+        // Starboard
+        if (Input.GetKey(KeyCode.C))
+        {
+            starboardForce += starboardDir * pingPongSpeed * Time.deltaTime;
+
+            // Bounce at limits
+            if (starboardForce >= maxForce)
+            {
+                starboardForce = maxForce;
+                starboardDir = -1f;
+            }
+            else if (starboardForce <= minForce)
+            {
+                starboardForce = minForce;
+                starboardDir = 1f;
+            }
+        }
+
+        // Port
+        if (Input.GetKey(KeyCode.Z))
+        {
+            portForce += portDir * pingPongSpeed * Time.deltaTime;
+
+            if (portForce >= maxForce)
+            {
+                portForce = maxForce;
+                portDir = -1f;
+            }
+            else if (portForce <= minForce)
+            {
+                portForce = minForce;
+                portDir = 1f;
+            }
+        }
+
+        // Reset direction to +1 when key is newly pressed
+        if (Input.GetKeyDown(KeyCode.C)) starboardDir = 1f;
+        if (Input.GetKeyDown(KeyCode.Z)) portDir = 1f;
     }
 
     void LateUpdate()
@@ -115,15 +182,33 @@ void Awake()
         portSternPredictor.Predict3D(portCannonStern.position, portCannonStern.forward * portForce, Physics.gravity);
     }
 
-    void LaunchCannon(Transform cannon, float force, float angle)
+    void FireAllCannons()
     {
+        StartCoroutine(LaunchCannonWithDelay(starboardCannon, starboardForce, 0f));
+        StartCoroutine(LaunchCannonWithDelay(portCannon, portForce, 0f));
+        StartCoroutine(LaunchCannonWithDelay(starboardCannonForward, starboardForce, 20f));
+        StartCoroutine(LaunchCannonWithDelay(portCannonForward, portForce, 20f));
+        StartCoroutine(LaunchCannonWithDelay(starboardCannonStern, starboardForce, -20f));
+        StartCoroutine(LaunchCannonWithDelay(portCannonStern, portForce, -20f));
+    }
+
+    IEnumerator LaunchCannonWithDelay(Transform cannon, float force, float angle)
+    {
+
+        yield return new WaitForSeconds(Random.Range(0.03f, 0.22f));
+        AudioSource audioSource = cannon.GetComponent<AudioSource>();
+        audioSource.pitch = Random.Range(0.9f, 1.1f);
+        audioSource.volume = Random.Range(0.25f, 0.4f);
+        audioSource.Play();
         GameObject ball = cannonballPool.Get();
         ball.transform.position = cannon.position;
+        Debug.Log("Fire cannonball at " + ball.transform.position + "cannon is " + cannon.position);
         ball.transform.rotation = cannon.rotation;
         Rigidbody rb = ball.GetComponent<Rigidbody>();
-        Vector3 forwardRotation = Quaternion.Euler(0, angle, 0) * cannon.forward;
-        rb.linearVelocity = cannon.forward * force;
+        ball.SetActive(true);
+        rb.linearVelocity = cannon.forward * force + shipRigidbody.linearVelocity;
     }
+
 
     private TrajectoryPredictor CreatePredictor(GameObject cannonObj)
     {
@@ -131,12 +216,61 @@ void Awake()
         predictor.drawDebugOnPrediction = true;
         predictor.reuseLine = true;
         predictor.accuracy = 0.99f;
-        predictor.lineWidth = 0.2f;
+        predictor.lineWidth = 0.3f;
         predictor.iterationLimit = 600;
         predictor.lineTexture = lineTexture;
         predictor.textureTilingMult = 0.35f;
-        predictor.lineStartColor = Color.red;
+        predictor.lineStartColor = Color.clear;
+        predictor.lineEndColor = Color.clear;
 
         return predictor;
+    }
+
+    // --- Fade control ----------------------------------------------------
+
+    // Set desired visibility. This no longer toggles enabled; it only sets the target alpha
+    void SetPredictorsVisible(bool visible)
+    {
+        predictorTargetAlpha = visible ? 0.8f : 0f;
+        // Do not toggle predictor.enabled here - control visibility purely via alpha
+    }
+
+    // Called each Update to drive the alpha toward predictorTargetAlpha
+    void UpdatePredictorFade()
+    {
+        // Early out if all predictors already at target alpha (tiny optimization)
+        // We'll check one predictor; they all move together so that's fine.
+        if (starboardPredictor == null) return;
+
+        float currentA = starboardPredictor.lineStartColor.a;
+        if (Mathf.Approximately(currentA, predictorTargetAlpha)) return;
+
+        float newA = Mathf.MoveTowards(currentA, predictorTargetAlpha, fadeSpeed * Time.deltaTime);
+
+        ApplyAlphaToAllPredictors(newA);
+    }
+
+    void ApplyAlphaToAllPredictors(float alpha)
+    {
+        Color s0 = baseStart; s0.a = alpha;
+        Color s1 = baseEnd; s1.a = alpha;
+
+        starboardPredictor.lineStartColor = s0;
+        starboardPredictor.lineEndColor = s1;
+
+        starboardForwardPredictor.lineStartColor = s0;
+        starboardForwardPredictor.lineEndColor = s1;
+
+        starboardSternPredictor.lineStartColor = s0;
+        starboardSternPredictor.lineEndColor = s1;
+
+        portPredictor.lineStartColor = s0;
+        portPredictor.lineEndColor = s1;
+
+        portForwardPredictor.lineStartColor = s0;
+        portForwardPredictor.lineEndColor = s1;
+
+        portSternPredictor.lineStartColor = s0;
+        portSternPredictor.lineEndColor = s1;
     }
 }

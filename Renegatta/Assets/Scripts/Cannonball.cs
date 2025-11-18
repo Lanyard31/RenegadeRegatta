@@ -3,7 +3,18 @@ using UnityEngine.Pool;
 
 public class Cannonball : MonoBehaviour
 {
+    [SerializeField] private GameObject explosionVFX;
+    [SerializeField] private GameObject explosionVFXSquishy;
+    [SerializeField] private GameObject explosionVFXSplashWater;
+    Rigidbody rb;
+    private bool isReleased = false;
+
     private ObjectPool<GameObject> pool;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
 
     public void SetPool(ObjectPool<GameObject> pool)
     {
@@ -12,15 +23,45 @@ public class Cannonball : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        // do hit logic here
+        if (isReleased) return;
+        isReleased = true;
 
-        // release back to pool
+        if (collision.transform.tag == "Water")
+        {
+            Instantiate(explosionVFXSplashWater, transform.position + new Vector3(0, 1f, 0), Quaternion.identity);
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        else if (collision.transform.tag == "Tentacle")
+        {
+            Instantiate(explosionVFXSquishy, transform.position, Quaternion.identity);
+            Instantiate(explosionVFX, transform.position, Quaternion.identity);
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        else if (collision.transform.tag == "Ground")
+        {
+            Instantiate(explosionVFX, transform.position, Quaternion.identity);
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
         pool.Release(gameObject);
     }
 
     void Update()
     {
-        // Destroy if far below water
-        if (transform.position.y < -10f) pool.Release(gameObject);
+        if (!isReleased && transform.position.y < -50f)
+        {
+            isReleased = true;
+            pool.Release(gameObject);
+        }
+    }
+
+    void OnEnable()
+    {
+        isReleased = false; // reset when reused
     }
 }
