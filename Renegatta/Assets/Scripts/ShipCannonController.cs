@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Pool;
 using System.Collections;
+using System;
 
 public class ShipCannonController : MonoBehaviour
 {
@@ -45,6 +46,12 @@ public class ShipCannonController : MonoBehaviour
     static readonly Color baseEnd = Color.orange;
     private float predictorTargetAlpha = 0f;
 
+    [Header("Angle Mapping")]
+    public float minAngle = 20f;   // flatter when force is high
+    public float maxAngle = 65f;   // lob angle when force is low
+
+    public event Action<float> OnCannonVisualSignal;
+
     void Awake()
     {
         // Create a runtime parent for all cannonballs
@@ -59,8 +66,9 @@ public class ShipCannonController : MonoBehaviour
                 obj.GetComponent<Cannonball>().SetPool(cannonballPool); // optional if bullets manage themselves
                 return obj;
             },
-            actionOnGet: obj => {},
-            actionOnRelease: obj => {
+            actionOnGet: obj => { },
+            actionOnRelease: obj =>
+            {
                 obj.SetActive(false);
                 obj.transform.position = poolInitPos;
             },
@@ -81,8 +89,8 @@ public class ShipCannonController : MonoBehaviour
         portForwardPredictor = CreatePredictor(portCannonForward.gameObject);
         portSternPredictor = CreatePredictor(portCannonStern.gameObject);
 
-        starboardForce = (minForce + maxForce) / 2f;
-        portForce = (minForce + maxForce) / 2f;
+        starboardForce = (minForce + maxForce) * 0.8f;
+        portForce = (minForce + maxForce) * 0.8f;
 
         reloadTimer = initialDelay;
         cannonsReady = false;
@@ -98,7 +106,7 @@ public class ShipCannonController : MonoBehaviour
             if (reloadTimer <= 0f)
             {
                 cannonsReady = true;
-                SetPredictorsVisible(true);
+                //SetPredictorsVisible(true);
             }
         }
 
@@ -110,11 +118,17 @@ public class ShipCannonController : MonoBehaviour
         {
             if (!cannonsReady) return;
 
+            SetPredictorsVisible(true);
+        }
+
+        if (Input.GetKeyUp(KeyCode.X))
+        {
+            if (!cannonsReady) return;
             cannonsReady = false;
             SetPredictorsVisible(false);
-
             reloadTimer = reloadDuration;
             FireAllCannons();
+            OnCannonVisualSignal?.Invoke(0f);
         }
     }
 
@@ -123,6 +137,7 @@ public class ShipCannonController : MonoBehaviour
         // Starboard
         if (Input.GetKey(KeyCode.C))
         {
+            SetPredictorsVisible(true);
             starboardForce += starboardDir * pingPongSpeed * Time.deltaTime;
 
             // Bounce at limits
@@ -141,6 +156,7 @@ public class ShipCannonController : MonoBehaviour
         // Port
         if (Input.GetKey(KeyCode.Z))
         {
+            SetPredictorsVisible(true);
             portForce += portDir * pingPongSpeed * Time.deltaTime;
 
             if (portForce >= maxForce)
@@ -158,28 +174,36 @@ public class ShipCannonController : MonoBehaviour
         // Reset direction to +1 when key is newly pressed
         if (Input.GetKeyDown(KeyCode.C)) starboardDir = 1f;
         if (Input.GetKeyDown(KeyCode.Z)) portDir = 1f;
+
+        // --- After force update ---
+
+        float starboardAngle = GetMappedAngle(starboardForce);
+        float portAngle = GetMappedAngle(portForce);
+
+        ApplyCannonAngles(starboardAngle, portAngle);
+
     }
 
     void LateUpdate()
     {
         // Update predictors
         starboardPredictor.debugLineDuration = Time.unscaledDeltaTime;
-        starboardPredictor.Predict3D(starboardCannon.position, starboardCannon.forward * starboardForce, Physics.gravity);
+        starboardPredictor.Predict3D(starboardCannon.position, starboardCannon.forward * starboardForce + shipRigidbody.linearVelocity, Physics.gravity);
 
         portPredictor.debugLineDuration = Time.unscaledDeltaTime;
-        portPredictor.Predict3D(portCannon.position, portCannon.forward * portForce, Physics.gravity);
+        portPredictor.Predict3D(portCannon.position, portCannon.forward * portForce + shipRigidbody.linearVelocity, Physics.gravity);
 
         starboardForwardPredictor.debugLineDuration = Time.unscaledDeltaTime;
-        starboardForwardPredictor.Predict3D(starboardCannonForward.position, starboardCannonForward.forward * starboardForce, Physics.gravity);
+        starboardForwardPredictor.Predict3D(starboardCannonForward.position, starboardCannonForward.forward * starboardForce + shipRigidbody.linearVelocity, Physics.gravity);
 
         portForwardPredictor.debugLineDuration = Time.unscaledDeltaTime;
-        portForwardPredictor.Predict3D(portCannonForward.position, portCannonForward.forward * portForce, Physics.gravity);
+        portForwardPredictor.Predict3D(portCannonForward.position, portCannonForward.forward * portForce + shipRigidbody.linearVelocity, Physics.gravity);
 
         starboardSternPredictor.debugLineDuration = Time.unscaledDeltaTime;
-        starboardSternPredictor.Predict3D(starboardCannonStern.position, starboardCannonStern.forward * starboardForce, Physics.gravity);
+        starboardSternPredictor.Predict3D(starboardCannonStern.position, starboardCannonStern.forward * starboardForce + shipRigidbody.linearVelocity, Physics.gravity);
 
         portSternPredictor.debugLineDuration = Time.unscaledDeltaTime;
-        portSternPredictor.Predict3D(portCannonStern.position, portCannonStern.forward * portForce, Physics.gravity);
+        portSternPredictor.Predict3D(portCannonStern.position, portCannonStern.forward * portForce + shipRigidbody.linearVelocity, Physics.gravity);
     }
 
     void FireAllCannons()
@@ -195,14 +219,13 @@ public class ShipCannonController : MonoBehaviour
     IEnumerator LaunchCannonWithDelay(Transform cannon, float force, float angle)
     {
 
-        yield return new WaitForSeconds(Random.Range(0.03f, 0.22f));
+        yield return new WaitForSeconds(UnityEngine.Random.Range(0.03f, 0.22f));
         AudioSource audioSource = cannon.GetComponent<AudioSource>();
-        audioSource.pitch = Random.Range(0.9f, 1.1f);
-        audioSource.volume = Random.Range(0.25f, 0.4f);
+        audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+        audioSource.volume = UnityEngine.Random.Range(0.25f, 0.4f);
         audioSource.Play();
         GameObject ball = cannonballPool.Get();
         ball.transform.position = cannon.position;
-        Debug.Log("Fire cannonball at " + ball.transform.position + "cannon is " + cannon.position);
         ball.transform.rotation = cannon.rotation;
         Rigidbody rb = ball.GetComponent<Rigidbody>();
         ball.SetActive(true);
@@ -216,7 +239,7 @@ public class ShipCannonController : MonoBehaviour
         predictor.drawDebugOnPrediction = true;
         predictor.reuseLine = true;
         predictor.accuracy = 0.99f;
-        predictor.lineWidth = 0.3f;
+        predictor.lineWidth = 0.4f;
         predictor.iterationLimit = 600;
         predictor.lineTexture = lineTexture;
         predictor.textureTilingMult = 0.35f;
@@ -231,7 +254,7 @@ public class ShipCannonController : MonoBehaviour
     // Set desired visibility. This no longer toggles enabled; it only sets the target alpha
     void SetPredictorsVisible(bool visible)
     {
-        predictorTargetAlpha = visible ? 0.8f : 0f;
+        predictorTargetAlpha = visible ? 0.9f : 0f;
         // Do not toggle predictor.enabled here - control visibility purely via alpha
     }
 
@@ -272,5 +295,50 @@ public class ShipCannonController : MonoBehaviour
 
         portSternPredictor.lineStartColor = s0;
         portSternPredictor.lineEndColor = s1;
+    }
+
+    float GetMappedAngle(float force)
+    {
+        float t = Mathf.InverseLerp(minForce, maxForce, force);
+        // 0 -> maxAngle, 1 -> minAngle
+        return Mathf.Lerp(minAngle, maxAngle, t);
+    }
+
+    void ApplyCannonAngles(float starboardAngle, float portAngle)
+    {
+        // Starboard cannons pitch downward = local X rotation
+        Vector3 e;
+
+        e = starboardCannon.localEulerAngles;
+        e.x = -starboardAngle;
+        starboardCannon.localEulerAngles = e;
+
+        e = starboardCannonForward.localEulerAngles;
+        e.x = -starboardAngle;
+        starboardCannonForward.localEulerAngles = e;
+
+        e = starboardCannonStern.localEulerAngles;
+        e.x = -starboardAngle;
+        starboardCannonStern.localEulerAngles = e;
+
+        // Port cannons may face the opposite direction, so we invert pitch
+        e = portCannon.localEulerAngles;
+        e.x = portAngle;
+        portCannon.localEulerAngles = e;
+
+        e = portCannonForward.localEulerAngles;
+        e.x = portAngle;
+        portCannonForward.localEulerAngles = e;
+
+        e = portCannonStern.localEulerAngles;
+        e.x = portAngle;
+        portCannonStern.localEulerAngles = e;
+    }
+
+
+    public float GetReloadRatio()
+    {
+        if (cannonsReady) return 1f;                         // fully cooled
+        return 1f - Mathf.Clamp01(reloadTimer / reloadDuration);
     }
 }
