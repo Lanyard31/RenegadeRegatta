@@ -4,25 +4,32 @@ using UnityEngine;
 public class SimpleShipController : MonoBehaviour
 {
     [Header("References")]
-    public Transform mainSpars;      // Child of hull
+    public Transform mainSpars;
     public Transform foreSpars;
-    public Rigidbody shipRigidbody;  // Rigidbody on hull
+    public Rigidbody shipRigidbody;
 
     [Header("Hull Rotation")]
-    public float hullTurnSpeed = 30f;   // Degrees per second
-    public float hullDamping = 2f;      // How quickly rotation slows when no input
+    public float hullTurnSpeed = 30f;
+    public float hullDamping = 2f;
+    public float lowSpeedTurnBoost = 1.5f;     // Ship turns this much faster when basically stopped
+    public float lowSpeedThreshold = 4f;       // Blend back to normal at this speed
 
     [Header("Spars Rotation")]
-    public float sparsTurnSpeed = 50f;  // Degrees per second
-    public float maxSparsAngle = 70f;  // Maximum local rotation in degrees
+    public float sparsTurnSpeed = 50f;
+    public float maxSparsAngle = 70f;
     private float sparsCurrentAngle = 0f;
+
+    [Header("Spars Acceleration")]
+    public float sparsAccelRate = 0.7f;        // How fast acceleration builds
+    public float sparsDecelRate = 2f;          // How fast it goes away
+    public float sparsAccelMax = 0.5f;         // Max extra multiplier
+    private float sparsAccelTimer = 0f;
 
     private void Awake()
     {
         if (shipRigidbody == null)
             shipRigidbody = GetComponent<Rigidbody>();
 
-        // Freeze pitch and roll for simplicity
         shipRigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
 
@@ -38,12 +45,22 @@ public class SimpleShipController : MonoBehaviour
         if (Input.GetKey(KeyCode.A)) turnInput = -1f;
         if (Input.GetKey(KeyCode.D)) turnInput = 1f;
 
-        float desiredYaw = turnInput * hullTurnSpeed;
+        // Speed-based turn assist
+        float shipSpeed = shipRigidbody.linearVelocity.magnitude;
+        float t = Mathf.Clamp01(shipSpeed / lowSpeedThreshold);
+        float turnBoost = Mathf.Lerp(lowSpeedTurnBoost, 1f, t);
+
+        float desiredYaw = turnInput * hullTurnSpeed * turnBoost;
         Vector3 currentAngularVelocity = shipRigidbody.angularVelocity;
-        float newYawVelocity = Mathf.Lerp(currentAngularVelocity.y, Mathf.Deg2Rad * desiredYaw, Time.fixedDeltaTime * hullDamping);
 
-        shipRigidbody.angularVelocity = new Vector3(currentAngularVelocity.x, newYawVelocity, currentAngularVelocity.z);
+        float newYawVelocity = Mathf.Lerp(
+            currentAngularVelocity.y,
+            Mathf.Deg2Rad * desiredYaw,
+            Time.fixedDeltaTime * hullDamping
+        );
 
+        shipRigidbody.angularVelocity =
+            new Vector3(currentAngularVelocity.x, newYawVelocity, currentAngularVelocity.z);
     }
 
     private void HandleSparsRotation()
@@ -54,16 +71,28 @@ public class SimpleShipController : MonoBehaviour
 
         if (sparsInput != 0f)
         {
-            float deltaAngle = sparsInput * sparsTurnSpeed * Time.fixedDeltaTime;
+            // Build acceleration while held
+            sparsAccelTimer = Mathf.Clamp(
+                sparsAccelTimer + sparsAccelRate * Time.fixedDeltaTime,
+                0f,
+                sparsAccelMax
+            );
+
+            float currentSpeed = sparsTurnSpeed * (1f + sparsAccelTimer);
+
+            float deltaAngle = sparsInput * currentSpeed * Time.fixedDeltaTime;
             float newAngle = Mathf.Clamp(sparsCurrentAngle + deltaAngle, -maxSparsAngle, maxSparsAngle);
 
-            deltaAngle = newAngle - sparsCurrentAngle; // rotate only the delta
+            deltaAngle = newAngle - sparsCurrentAngle;
             sparsCurrentAngle = newAngle;
 
-            // Rotate around local Z axis
             mainSpars.Rotate(0f, 0f, deltaAngle, Space.Self);
             foreSpars.Rotate(0f, 0f, deltaAngle, Space.Self);
         }
+        else
+        {
+            // Cool down acceleration when not turning
+            sparsAccelTimer = Mathf.Max(0f, sparsAccelTimer - sparsDecelRate * Time.fixedDeltaTime);
+        }
     }
-
 }

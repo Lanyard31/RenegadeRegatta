@@ -39,6 +39,8 @@ public class Cannonball : MonoBehaviour
             Instantiate(explosionVFX, transform.position, Quaternion.identity);
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
+            //get component and cause some damage
+            collision.transform.GetComponent<Tentacle>().TakeDamage(1);
         }
 
         else if (collision.transform.tag == "Ground")
