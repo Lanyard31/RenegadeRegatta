@@ -158,4 +158,10 @@ public class WindPushNew : MonoBehaviour
         MainBall.localPosition = Vector3.Lerp(MainBall.localPosition, mainTargetPos, Time.fixedDeltaTime);
         ForeBall.localPosition = Vector3.Lerp(ForeBall.localPosition, foreTargetPos, Time.fixedDeltaTime);
     }
+
+public void AddCoinBoost(float amount)
+{
+    rb.AddForce(hull.right * amount, ForceMode.VelocityChange);
+}
+
 }
