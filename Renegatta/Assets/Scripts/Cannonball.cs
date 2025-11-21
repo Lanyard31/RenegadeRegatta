@@ -35,8 +35,9 @@ public class Cannonball : MonoBehaviour
 
         else if (collision.transform.tag == "Tentacle")
         {
-            Instantiate(explosionVFXSquishy, transform.position, Quaternion.identity);
-            Instantiate(explosionVFX, transform.position, Quaternion.identity);
+            //rotation to match collision
+            Instantiate(explosionVFXSquishy, transform.position, Quaternion.FromToRotation(Vector3.up, collision.contacts[0].normal));
+            Instantiate(explosionVFX, transform.position, Quaternion.FromToRotation(Vector3.up, collision.contacts[0].normal));
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
             //get component and cause some damage
@@ -45,7 +46,7 @@ public class Cannonball : MonoBehaviour
 
         else if (collision.transform.tag == "Ground")
         {
-            Instantiate(explosionVFX, transform.position, Quaternion.identity);
+            Instantiate(explosionVFX, transform.position, Quaternion.FromToRotation(Vector3.up, collision.contacts[0].normal));
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }

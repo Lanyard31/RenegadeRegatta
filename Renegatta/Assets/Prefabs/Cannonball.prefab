@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2412165013551048115}
   m_Layer: 12
   m_Name: Cannonball
-  m_TagString: Untagged
+  m_TagString: Cannonball
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -100,8 +100,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0.051096886, z: 0}
+  m_Radius: 0.8
+  m_Center: {x: 0, y: 0.2, z: 0}
 --- !u!1 &1348511570996876373
 GameObject:
   m_ObjectHideFlags: 0
@@ -14956,15 +14956,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 406246, guid: feef7742679be4e4f9751dea1518867d, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 406246, guid: feef7742679be4e4f9751dea1518867d, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 406246, guid: feef7742679be4e4f9751dea1518867d, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 406246, guid: feef7742679be4e4f9751dea1518867d, type: 3}
       propertyPath: m_LocalPosition.x

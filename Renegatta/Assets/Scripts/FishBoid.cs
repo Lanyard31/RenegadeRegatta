@@ -28,14 +28,14 @@ public class FishBoid : MonoBehaviour
             containment = parentSchool.GetComponent<BoxCollider>();
 
         // determine spread factor
-        float spread = 0.5f; // default small school spread
+        float spread = 1.5f; // default small school spread
 
         // scale by the fish mesh size if available
         Renderer rend = GetComponentInChildren<Renderer>();
         if (rend != null)
         {
             Vector3 size = rend.bounds.size;
-            spread = Mathf.Max(size.x, size.z) * 0.75f; // 75% of the largest horizontal dimension
+            spread = spread + Mathf.Max(size.x, size.z) * 0.75f; // 75% of the largest horizontal dimension
         }
 
         // initialize a small random offset relative to the school center

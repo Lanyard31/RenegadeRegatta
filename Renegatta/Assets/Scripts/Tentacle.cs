@@ -30,10 +30,19 @@ public class Tentacle : MonoBehaviour
     private bool armed;       // has a rock in hand
     private bool busy;        // mid-animation
     private bool isDead;
+    private float grabRockRandomYaw = 0f;
+    private bool grabRockOffsetChosen = false;
+    [SerializeField] private AudioSource whipCrackSound;
+    private float originalVolume;
+    [SerializeField] private AudioSource deathRoarSound;
+    private float originalRoarVolume;
+    [SerializeField] private ParticleSystem whipCrackParticles;
 
     void Start()
     {
         anim = GetComponent<Animator>();
+        originalVolume = whipCrackSound.volume;
+        originalRoarVolume = deathRoarSound.volume;
         currentHealth = maxHealth;
 
         GameObject p = GameObject.FindGameObjectWithTag("Player");
@@ -84,6 +93,11 @@ public class Tentacle : MonoBehaviour
             verticalSpeed *= 1.65f;
             busy = true;
             anim.SetTrigger("Hit");
+
+            //randomize pitch and volume
+            deathRoarSound.pitch = Random.Range(0.9f, 1.1f);
+            deathRoarSound.volume = Random.Range(0.8f, 1.2f) * originalRoarVolume;
+            deathRoarSound.Play();
         }
 
         float targetY = aboveWater ? emergedY : submergedY;
@@ -104,24 +118,63 @@ public class Tentacle : MonoBehaviour
         }
 
         //if dead and fully submerged, delete
-        if (isDead && Mathf.Approximately(pos.y, submergedY))
+        if (isDead && (pos.y < submergedY) && !deathRoarSound.isPlaying)
         {
             Destroy(gameObject);
         }
     }
 
-    private void HandleRotation()
+private void HandleRotation()
+{
+    if (!aboveWater || !player) return;
+
+    Vector3 dir = player.position - transform.position;
+    dir.y = 0;
+
+    if (dir.sqrMagnitude < 0.1f) return;
+
+    Quaternion targetRot = Quaternion.LookRotation(dir);
+
+    // Check animator state
+    var state = anim.GetCurrentAnimatorStateInfo(0);
+    bool isGrabbing = state.IsName("GrabRock");
+
+    if (isGrabbing && !armed)
     {
-        if (!aboveWater || !player) return;
+            // Choose a one-time random yaw offset when animation starts
+            if (!grabRockOffsetChosen)
+            {
+                grabRockOffsetChosen = true;
+                // Choose either left or right side, avoiding the center
+                if (Random.value < 0.5f)
+                {
+                    // Negative range
+                    grabRockRandomYaw = Random.Range(-80f, -10f);
+                }
+                else
+                {
+                    // Positive range
+                    grabRockRandomYaw = Random.Range(10f, 80f);
+                }
 
-        Vector3 dir = player.position - transform.position;
-        dir.y = 0;
+            }
 
-        if (dir.sqrMagnitude < 0.1f) return;
-
-        Quaternion targetRot = Quaternion.LookRotation(dir);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotateSpeed * Time.deltaTime);
+            // Apply the rotation offset
+            targetRot *= Quaternion.Euler(0f, grabRockRandomYaw, 0f);
     }
+    else
+    {
+        // Reset so next grab picks a new value
+        grabRockOffsetChosen = false;
+    }
+
+    transform.rotation = Quaternion.Slerp(
+        transform.rotation,
+        targetRot,
+        rotateSpeed * Time.deltaTime
+    );
+}
+
 
     private void HandleThrowLogic(float dist)
     {
@@ -131,6 +184,8 @@ public class Tentacle : MonoBehaviour
         {
             busy = true;
             anim.SetTrigger("Throw");
+            //play whip sfx
+            Invoke(nameof(PlayWhipAudio), 0.21f);
         }
     }
 
@@ -151,12 +206,14 @@ public void OnThrowRock()
 
     GameObject rock = Instantiate(rockPrefab, throwPoint.position, throwPoint.rotation);
 
+    whipCrackParticles.Play();
+
     if (rock.TryGetComponent<Rigidbody>(out var rb))
     {
         Vector3 target = player.position + Vector3.up * 1.2f; // aim for upper body
         Vector3 start = throwPoint.position;
 
-        float speed = 20f;
+        float speed = 25f;
 
         // Compute launch velocity
         Vector3 toTarget = target - start;
@@ -181,7 +238,7 @@ public void OnThrowRock()
 
         rb.linearVelocity = launchVelocity;
         //add slight random spin
-        rb.AddTorque(Random.Range(-50f, 50f), Random.Range(-50f, 50f), Random.Range(-50f, 50f));
+        rb.AddTorque(Random.Range(-75f, 75f), Random.Range(-75f, 75f), Random.Range(-75f, 75f));
     }
 }
 
@@ -219,5 +276,13 @@ public void OnThrowRock()
 
         busy = true;
         anim.SetTrigger("Hit");
+    }
+
+    private void PlayWhipAudio()
+    {
+        //randomize pitch and volume
+        whipCrackSound.pitch = Random.Range(0.5f, 0.7f);
+        whipCrackSound.volume = Random.Range(0.8f, 1.2f) * originalVolume;
+        whipCrackSound.Play();
     }
 }

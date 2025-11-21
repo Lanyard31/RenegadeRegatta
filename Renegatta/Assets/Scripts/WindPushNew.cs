@@ -30,11 +30,14 @@ public class WindPushNew : MonoBehaviour
     private Rigidbody rb;
     Vector3 pushDir;
     Vector3 windDir;
+    private PlayerHealth health;
+    private float healthPenalty = 0f;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         windDir = Vector3.right;
+        health = GetComponent<PlayerHealth>(); 
     }
 
     void Start()
@@ -44,6 +47,13 @@ public class WindPushNew : MonoBehaviour
 
         mainBallEmptyPos = MainBall.localPosition - new Vector3(emptyOffset, 0, 0);
         foreBallEmptyPos = ForeBall.localPosition - new Vector3(emptyOffset, 0, 0);
+
+        health.OnHealthPenaltyChanged += HandleHealthPenaltyChanged;
+    }
+
+    private void HandleHealthPenaltyChanged(float penalty)
+    {
+        healthPenalty = penalty;  // cache it
     }
 
     void FixedUpdate()
@@ -87,6 +97,8 @@ public class WindPushNew : MonoBehaviour
             alignmentCategory = "Misaligned";
             efficiency = 0.1f; // Negative to slow down
         }
+
+        efficiency = efficiency * (1f - healthPenalty);
 
         ApplyWindHeel(sparsWindAngle, efficiency, alignmentCategory);
         AdjustWindBalls(efficiency, alignmentCategory);

@@ -7,32 +7,59 @@ public class BoatCollisionBounce : MonoBehaviour
     public float upwardBoost = 2f;      // Small lift so we don't get trapped
     public float maxBounceSpeed = 10f;  // Clamp rebound velocity
 
+    private float nudgeMultiplier = 1.75f;  // Scales lateral nudge when hit from below
+    public HitVFXPool hitVFXPool;
+    private PlayerHealth playerHealth;
+
     private Rigidbody rb;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        playerHealth = GetComponent<PlayerHealth>();
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        // Find the average contact point/normal
         ContactPoint contact = collision.GetContact(0);
-
-        // Normal points AWAY from the surface we hit
         Vector3 pushDir = contact.normal;
 
-        // Add a little upward lift
-        pushDir += Vector3.up * upwardBoost;
+        // Check if hit is from below
+        bool hitFromBelow = Vector3.Dot(pushDir, Vector3.up) > 0.8f;
+
+        if (hitFromBelow)
+        {
+            // Upward lift
+            pushDir += Vector3.up * (upwardBoost * 1.15f);
+
+            // Determine if lateral push should help or fight current velocity
+            Vector3 lateralDir = transform.right;
+            float dot = Vector3.Dot(rb.linearVelocity, lateralDir);
+
+            // Flip if it would push backward relative to motion
+            if (dot < 0) lateralDir = -lateralDir;
+
+            // Apply lateral push scaled by nudgeMultiplier
+            pushDir += lateralDir * nudgeMultiplier;
+
+            Debug.Log($"Hit from below. Velocity: {rb.linearVelocity}, pushDir: {pushDir}");
+        }
+        else
+        {
+            pushDir += Vector3.up * upwardBoost;
+        }
+
         pushDir.Normalize();
 
-        // Apply bounce impulse
         rb.AddForce(pushDir * bounceForce, ForceMode.Impulse);
 
-        // Clamp absurd rebound from stacked forces or old momentum
         if (rb.linearVelocity.magnitude > maxBounceSpeed)
-        {
             rb.linearVelocity = rb.linearVelocity.normalized * maxBounceSpeed;
-        }
+
+        if (hitVFXPool != null)
+            //raise slightly on Y axis
+            hitVFXPool.Get(contact.point + new Vector3(0, 0.15f, 0));
+
+        playerHealth.ApplyDamage(10f);
     }
 }

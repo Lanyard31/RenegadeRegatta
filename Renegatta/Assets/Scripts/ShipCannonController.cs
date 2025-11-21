@@ -75,7 +75,7 @@ public class ShipCannonController : MonoBehaviour
             actionOnDestroy: obj => Destroy(obj),
             collectionCheck: true,
             defaultCapacity: 12,
-            maxSize: 200
+            maxSize: 100
         );
     }
 
@@ -230,6 +230,8 @@ public class ShipCannonController : MonoBehaviour
         Rigidbody rb = ball.GetComponent<Rigidbody>();
         ball.SetActive(true);
         rb.linearVelocity = cannon.forward * force + shipRigidbody.linearVelocity;
+        //give a big random spin
+
     }
 
 
