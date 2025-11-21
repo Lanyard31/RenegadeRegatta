@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using Dan.Main;
+//using Dan.Main;
 
 public class Leaderboard : MonoBehaviour
 {
+    /*
     [SerializeField] private List<TextMeshProUGUI> names;
     [SerializeField] private List<TextMeshProUGUI> scores;
 
@@ -37,4 +38,5 @@ public class Leaderboard : MonoBehaviour
             GetLeaderboard();
         }));
     }
+    */
 }
