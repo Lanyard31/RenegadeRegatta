@@ -6,9 +6,9 @@ public class Cannonball : MonoBehaviour
     [SerializeField] private GameObject explosionVFX;
     [SerializeField] private GameObject explosionVFXSquishy;
     [SerializeField] private GameObject explosionVFXSplashWater;
+
     Rigidbody rb;
     private bool isReleased = false;
-
     private ObjectPool<GameObject> pool;
 
     private void Awake()
@@ -32,21 +32,26 @@ public class Cannonball : MonoBehaviour
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
-
         else if (collision.transform.tag == "Tentacle")
         {
-            //rotation to match collision
             Instantiate(explosionVFXSquishy, transform.position, Quaternion.FromToRotation(Vector3.up, collision.contacts[0].normal));
             Instantiate(explosionVFX, transform.position, Quaternion.FromToRotation(Vector3.up, collision.contacts[0].normal));
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            //get component and cause some damage
+
             collision.transform.GetComponent<Tentacle>().TakeDamage(1);
         }
-
         else if (collision.transform.tag == "Ground")
         {
             Instantiate(explosionVFX, transform.position, Quaternion.FromToRotation(Vector3.up, collision.contacts[0].normal));
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+        else if (collision.transform.tag == "Bird")
+        {
+            // bird bonk
+            Instantiate(explosionVFX, transform.position, Quaternion.FromToRotation(Vector3.up, collision.contacts[0].normal));
+            Destroy(collision.gameObject); // bye bye birdie
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
@@ -65,6 +70,6 @@ public class Cannonball : MonoBehaviour
 
     void OnEnable()
     {
-        isReleased = false; // reset when reused
+        isReleased = false;
     }
 }
