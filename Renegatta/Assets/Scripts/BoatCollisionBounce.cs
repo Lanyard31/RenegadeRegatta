@@ -3,6 +3,7 @@ using UnityEngine;
 public class BoatCollisionBounce : MonoBehaviour
 {
     [Header("Settings")]
+    public float damageTaken = 15f;
     public float bounceForce = 8f;      // Lateral bounce strength
     public float upwardBoost = 2f;      // Small lift so we don't get trapped
     public float maxBounceSpeed = 10f;  // Clamp rebound velocity
@@ -60,6 +61,6 @@ public class BoatCollisionBounce : MonoBehaviour
             //raise slightly on Y axis
             hitVFXPool.Get(contact.point + new Vector3(0, 0.15f, 0));
 
-        playerHealth.ApplyDamage(10f);
+        playerHealth.ApplyDamage(damageTaken);
     }
 }

@@ -114,7 +114,7 @@ public class ShipCannonController : MonoBehaviour
         UpdatePredictorLines();
 
         // Fire cannonballs
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKey(KeyCode.X))
         {
             if (!cannonsReady) return;
 

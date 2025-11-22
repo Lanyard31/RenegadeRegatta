@@ -1,78 +1,132 @@
 using UnityEngine;
 
+public enum BigFishBehavior
+{
+    Follow,
+    WakeRide,
+    BowCross
+}
+
 public class BigFishUnit : MonoBehaviour
 {
-    private BigFishPod pod;
-    private SimpleWaveDeformer water;
-    private bool escaping;
+    [Header("Behavior")]
+    public BigFishBehavior behavior;
 
-    public float followSpeed = 2f;
-    public float jitter = 1f;
-    public float depthOffset = -0.5f;
+    [Header("Movement")]
+    public float speed = 8f;
+    public float diveSpeed = 5f;
 
-    public void Init(BigFishPod pod, SimpleWaveDeformer wave)
+    [Header("Lifetime")]
+    public float activeTime = 6f;
+
+    [HideInInspector] public BigFishManager manager;
+    [HideInInspector] public Transform player;
+
+    private float timer;
+    private bool descending;
+    private bool finished;
+
+    private float bowCrossHeightOffset = -6f;
+
+    void Start()
     {
-        this.pod = pod;
-        this.water = wave;
+        timer = activeTime;
     }
 
     void Update()
     {
-        if (escaping) return;
+        if (finished) return;
 
-        Vector3 target = pod.transform.position;
-        target += Random.insideUnitSphere * jitter;
+        timer -= Time.deltaTime;
 
+        // Run the normal behavior EVERY frame
+        switch (behavior)
+        {
+            case BigFishBehavior.Follow:
+                DoFollow();
+                break;
+
+            case BigFishBehavior.WakeRide:
+                DoWakeRide();
+                break;
+
+            case BigFishBehavior.BowCross:
+                DoBowCross();
+                break;
+        }
+
+        // If descending, override ONLY THE Y MOTION
+        if (descending)
+        {
+            ApplyDescendingY();
+        }
+
+        if (!descending && timer <= 0f)
+            descending = true;
+    }
+
+    void ApplyDescendingY()
+    {
+        Vector3 p = transform.position;
+        p.y -= diveSpeed * Time.deltaTime;
+        transform.position = p;
+
+        if (transform.position.y < player.position.y - 20f)
+            Finish();
+    }
+
+    void DoFollow()
+    {
+        Vector3 target = new Vector3(player.position.x, 0f, player.position.z) + Vector3.back * 10f + Vector3.down * 2f;
+
+        // Move forward toward target
+        transform.position += (target - transform.position).normalized * speed * Time.deltaTime;
+
+        // Look at player
         Vector3 dir = (target - transform.position).normalized;
-        transform.forward = Vector3.Lerp(transform.forward, dir, Time.deltaTime * followSpeed);
+        if (dir != Vector3.zero)
+            transform.forward = Vector3.Lerp(transform.forward, dir, Time.deltaTime * 2f);
 
-        transform.position += transform.forward * pod.speed * Time.deltaTime;
+        // Begin descending gradually
+        if (timer < activeTime * 0.4f)
+            transform.position += Vector3.down * diveSpeed * Time.deltaTime;
     }
 
-    void LateUpdate()
+    void DoWakeRide()
     {
-        if (escaping || !water) return;
+        Vector3 bowPoint = new Vector3(player.position.x, 0f, player.position.z)
+                           + player.right * 6f;
 
-        // wave motion same as your SchoolWaveFollower
-        Vector3 worldPos = transform.position;
-        Vector3 localPos = water.transform.InverseTransformPoint(worldPos);
+        Vector3 oldPos = transform.position;
+        Vector3 next = Vector3.MoveTowards(oldPos, bowPoint, speed * Time.deltaTime);
 
-        float localHeight = GetWaveHeightLocal(localPos.x, localPos.z);
+        // preserve Y
+        next.y = oldPos.y;
+        transform.position = next;
 
-        Vector3 waveWorld = water.transform.TransformPoint(
-            new Vector3(localPos.x, localHeight, localPos.z)
-        );
-
-        float targetY = waveWorld.y + depthOffset;
-        worldPos.y = Mathf.Lerp(worldPos.y, targetY, Time.deltaTime * 4f);
-        transform.position = worldPos;
+        transform.forward = Vector3.Lerp(transform.forward, player.forward, Time.deltaTime * 3f);
     }
 
-    public void Scatter()
+    void DoBowCross()
     {
-        if (escaping) return;
-        escaping = true;
+        Vector3 crossDir = -player.right;
 
-        Vector3 dir = (transform.position - pod.transform.position).normalized;
-        dir.y = -0.6f;
-        if (dir.sqrMagnitude < 0.01f)
-            dir = (Vector3.back + Vector3.down).normalized;
+        Vector3 oldPos = transform.position;
+        Vector3 next = oldPos + crossDir.normalized * speed * Time.deltaTime;
 
-        transform.forward = dir;
+        // maintain bow-cross animation height unless descending overrides it
+        if (!descending)
+            next.y = bowCrossHeightOffset;
+
+        transform.position = next;
+
+        transform.forward = crossDir.normalized;
     }
 
-    float GetWaveHeightLocal(float x, float z)
+    void Finish()
     {
-        float t = Time.time;
-        Vector2 d1 = water.direction1.normalized;
-        Vector2 d2 = water.direction2.normalized;
-
-        float k1 = 2 * Mathf.PI / water.wavelength1;
-        float k2 = 2 * Mathf.PI / water.wavelength2;
-
-        float p1 = (x * d1.x + z * d1.y) * k1 + t * water.speed1;
-        float p2 = (x * d2.x + z * d2.y) * k2 + t * water.speed2;
-
-        return Mathf.Sin(p1) * water.amplitude1 + Mathf.Sin(p2) * water.amplitude2;
+        finished = true;
+        manager.NotifyUnitFinished();
+        Destroy(gameObject);
     }
 }

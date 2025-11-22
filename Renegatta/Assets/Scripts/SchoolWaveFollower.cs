@@ -10,6 +10,15 @@ public class SchoolWaveFollower : MonoBehaviour
     [Header("Smoothing")]
     public float followSpeed = 4f;   // how snappy the bobbing is
 
+    //get the water by its tag
+    void Start()
+    {
+        if (!water)
+        {
+            water = GameObject.FindWithTag("Water").GetComponent<SimpleWaveDeformer>();
+        }
+    }
+
     void LateUpdate()
     {
         if (!water) return;

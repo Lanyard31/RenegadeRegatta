@@ -4,36 +4,37 @@ using UnityEngine;
 
 public class HitFlash : MonoBehaviour
 {
-    [SerializeField] private Material hitMaterial;
+    [Header("Flash Materials")]
+    [SerializeField] private Material flashMaterialA;  // e.g. red
+    [SerializeField] private Material flashMaterialB;  // e.g. white
+
+    [Header("Settings")]
     [SerializeField] private float flashDuration = 0.05f;
+    [SerializeField] private int flashCount = 3;
+
+    [Header("Ignore These")]
+    [SerializeField] private List<GameObject> skipObjects = new();
 
     private Renderer[] renderers;
     private Material[][] originalMaterials;
 
     void Awake()
     {
-        // Grab all renderers (MeshRenderer + SkinnedMeshRenderer)
         renderers = GetComponentsInChildren<Renderer>(true);
 
-        // Store original materials
         originalMaterials = new Material[renderers.Length][];
+
         for (int i = 0; i < renderers.Length; i++)
         {
             originalMaterials[i] = renderers[i].materials;
         }
     }
 
-    /// <summary>
-    /// Called by PlayerHealth via reflection (Flash() or DoFlash()).
-    /// </summary>
     public void Flash()
     {
         StartCoroutine(FlashRoutine());
     }
 
-    /// <summary>
-    /// Enemy and other scripts can call this directly too.
-    /// </summary>
     public void EnemyHitFlash()
     {
         StartCoroutine(FlashRoutine());
@@ -41,31 +42,76 @@ public class HitFlash : MonoBehaviour
 
     private IEnumerator FlashRoutine()
     {
-        // Build the temp arrays once
-        Material[] tempMaterials = null;
+        // Pre-build temp arrays for both flash materials
+        Material[][] flashA = new Material[renderers.Length][];
+        Material[][] flashB = new Material[renderers.Length][];
 
-        // Swap to hit materials
         for (int i = 0; i < renderers.Length; i++)
         {
-            var r = renderers[i];
-            int count = originalMaterials[i].Length;
+            Renderer r = renderers[i];
 
-            // Create a fresh array per renderer
-            tempMaterials = new Material[count];
-            for (int m = 0; m < count; m++)
+            // Renderer destroyed or missing? Just mirror original.
+            if (r == null || r.gameObject == null)
             {
-                tempMaterials[m] = hitMaterial;
+                flashA[i] = originalMaterials[i];
+                flashB[i] = originalMaterials[i];
+                continue;
             }
 
-            r.materials = tempMaterials;
+            // Skip if this renderer is on or inside a skipped object
+            if (IsSkipped(r.gameObject))
+            {
+                flashA[i] = originalMaterials[i];
+                flashB[i] = originalMaterials[i];
+                continue;
+            }
+
+            int count = originalMaterials[i].Length;
+
+            flashA[i] = new Material[count];
+            flashB[i] = new Material[count];
+
+            for (int m = 0; m < count; m++)
+            {
+                flashA[i][m] = flashMaterialA;
+                flashB[i][m] = flashMaterialB;
+            }
         }
 
-        yield return new WaitForSeconds(flashDuration);
+        for (int f = 0; f < flashCount; f++)
+        {
+            ApplyMaterials(flashA);
+            yield return new WaitForSeconds(flashDuration);
 
-        // Restore original materials
+            ApplyMaterials(flashB);
+            yield return new WaitForSeconds(flashDuration);
+        }
+
+        ApplyMaterials(originalMaterials);
+    }
+
+    private void ApplyMaterials(Material[][] mats)
+    {
         for (int i = 0; i < renderers.Length; i++)
         {
-            renderers[i].materials = originalMaterials[i];
+            Renderer r = renderers[i];
+
+            if (r == null || r.gameObject == null)
+                continue;
+
+            r.materials = mats[i];
         }
+    }
+
+
+    private bool IsSkipped(GameObject obj)
+    {
+        foreach (GameObject skipped in skipObjects)
+        {
+            if (skipped == null) continue;
+            if (obj == skipped || obj.transform.IsChildOf(skipped.transform))
+                return true;
+        }
+        return false;
     }
 }

@@ -1,55 +1,85 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class BigFishManager : MonoBehaviour
 {
-    [Header("Refs")]
+    [Header("Settings")]
     public Transform playerShip;
-    public SimpleWaveDeformer water;
+    public float minInterval = 20f;
+    public float maxInterval = 40f;
+    private int minCount = 1;
+    private int maxCount = 3;
 
     [Header("Prefabs")]
-    public BigFishPod podPrefab;
+    public List<BigFishUnit> fishPrefabs = new List<BigFishUnit>();
 
-    [Header("Spawn Settings")]
-    public float spawnDistance = 80f; 
-    public float despawnDistance = 120f;
-    public float eventChance = 0.25f; // maybe?
+    [Header("Requirements")]
+    public PlayerHealth playerHealth;
 
-    private BigFishPod activePod;
-    private float checkTimer;
+    private float timer;
+    private bool eventActive;
+    private int unitsRemaining;
+
+    void Start()
+    {
+        ResetTimer();
+    }
 
     void Update()
     {
-        if (!playerShip) return;
+        if (eventActive) return;
 
-        // one pod at a time
-        if (activePod)
+        if (playerHealth.GetHealthValue() < playerHealth.healthMax - 1f)
         {
-            // despawn if it drifted way out of view
-            float dist = Vector3.Distance(activePod.transform.position, playerShip.position);
-            if (dist > despawnDistance)
-            {
-                Destroy(activePod.gameObject);
-                activePod = null;
-            }
-            return;
+            Debug.Log("Player health too low to spawn big fish");
         }
 
-        checkTimer += Time.deltaTime;
-        if (checkTimer < 5f) return;
-        checkTimer = 0f;
+        timer -= Time.deltaTime;
 
-        if (Random.value > eventChance) return;
-
-        SpawnPod();
+        if (timer <= 0f)
+        {
+            TrySpawnEvent();
+            ResetTimer();
+        }
     }
 
-    void SpawnPod()
+    void ResetTimer()
     {
-        Vector3 dir = Random.insideUnitCircle.normalized;
-        Vector3 spawnPos = playerShip.position + new Vector3(dir.x, 0, dir.y) * spawnDistance;
+        timer = Random.Range(minInterval, maxInterval);
+    }
 
-        activePod = Instantiate(podPrefab, spawnPos, Quaternion.identity);
-        activePod.Init(playerShip, water);
+    void TrySpawnEvent()
+    {
+        if (fishPrefabs.Count == 0) return;
+
+        var prefab = fishPrefabs[Random.Range(0, fishPrefabs.Count)];
+        int count = Random.Range(minCount, maxCount + 1);
+
+        Vector3 spawnPos =
+            playerShip.position
+            + playerShip.right * Random.Range(40f, 70f)
+            + Vector3.down * 15f;
+
+        eventActive = true;
+        unitsRemaining = count;
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 offset = Random.insideUnitSphere * 16f;
+            //rotated 90 degrees around y axis
+            var unit = Instantiate(prefab, spawnPos + new Vector3(offset.x, 0f, offset.z), Quaternion.Euler(0f, 90f, 0f));
+            unit.manager = this;
+            unit.player = playerShip;
+            //set this as parent.
+            unit.transform.parent = transform;
+        }
+    }
+
+    public void NotifyUnitFinished()
+    {
+        unitsRemaining--;
+
+        if (unitsRemaining <= 0)
+            eventActive = false;
     }
 }

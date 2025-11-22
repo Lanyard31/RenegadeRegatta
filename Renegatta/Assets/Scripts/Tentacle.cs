@@ -9,7 +9,7 @@ public class Tentacle : MonoBehaviour
     [SerializeField] private ParticleSystem bubbleParticles;
 
     [Header("Movement")]
-    private float submergedY = -21f;
+    private float submergedY = -22f;
     private float emergedY = -2.5f;
     [SerializeField] private float verticalSpeed = 2f;
 
@@ -20,6 +20,7 @@ public class Tentacle : MonoBehaviour
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 3;
+    public MonoBehaviour hitFlash;
     private int currentHealth;
 
     private Transform player;
@@ -118,7 +119,7 @@ public class Tentacle : MonoBehaviour
         }
 
         //if dead and fully submerged, delete
-        if (isDead && (pos.y < submergedY) && !deathRoarSound.isPlaying)
+        if (isDead && (pos.y <= submergedY + 1f) && !deathRoarSound.isPlaying)
         {
             Destroy(gameObject);
         }
@@ -276,13 +277,22 @@ public void OnThrowRock()
 
         busy = true;
         anim.SetTrigger("Hit");
+        TryInvokeHitFlash();
     }
 
     private void PlayWhipAudio()
     {
         //randomize pitch and volume
-        whipCrackSound.pitch = Random.Range(0.5f, 0.7f);
+        whipCrackSound.pitch = Random.Range(0.45f, 0.65f);
         whipCrackSound.volume = Random.Range(0.8f, 1.2f) * originalVolume;
         whipCrackSound.Play();
+    }
+
+    private void TryInvokeHitFlash()
+    {
+        if (hitFlash == null) return;
+        var type = hitFlash.GetType();
+        var method = type.GetMethod("Flash") ?? type.GetMethod("DoFlash");
+        if (method != null) method.Invoke(hitFlash, null);
     }
 }

@@ -30,14 +30,14 @@ public class ScoreManager : MonoBehaviour
         submitScoreEvent.Invoke(playerName, scoreValue);
 
         buttonText.text = "Submitted!";
-        //leaderboard.GetLeaderboard();
+        leaderboard.GetLeaderboard();
 
         Invoke(nameof(Hide), 2f);
     }
 
     private void Hide()
     {
-        //leaderboard.GetLeaderboard();
+        leaderboard.GetLeaderboard();
         gameObject.SetActive(false);
     }
 }

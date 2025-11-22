@@ -1,6 +1,7 @@
 // PlayerHealth.cs (cleaned, death removed and extras commented at bottom)
 using System;
 using System.Collections;
+using TrajectoryExample;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -160,6 +161,7 @@ public class PlayerHealth : MonoBehaviour
             bool on = (health <= t30) || (fire30.activeSelf && health < t50);
             fire30.SetActive(on);
         }
+
     }
 
     private void PushPenalty()
@@ -168,6 +170,9 @@ public class PlayerHealth : MonoBehaviour
         float penalty = Mathf.Clamp01(penaltyCurve.Evaluate(t));
         OnHealthPenaltyChanged?.Invoke(penalty);
     }
+
+    //lambda expression to get current health 
+    public float GetHealthValue() => health;
 
 #if UNITY_EDITOR
     private void OnValidate()
