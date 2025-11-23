@@ -62,6 +62,7 @@ public class BigFishManager : MonoBehaviour
             BigFishBehavior.Follow => 1,
             BigFishBehavior.WakeRide => 2,
             BigFishBehavior.BowCross => 3,
+            BigFishBehavior.AirCross => 3,
             _ => 1
         };
 
