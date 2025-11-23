@@ -2,38 +2,27 @@ using UnityEngine;
 
 public class CannonHeelFollower : MonoBehaviour
 {
-    [SerializeField] private Transform shipRoot;        
-    [SerializeField] private float maxHeel = 5f;        // how much the cannon rig tilts
-    [SerializeField] private float smooth = 4f;         // responsiveness
+    [SerializeField] private WindPushNew windPush; 
+    [SerializeField] private float maxCannonHeel = 10f;
+    [SerializeField] private float smoothing = 5f;
 
-    // ship roll is clamped to these extremes before remapping
-    [SerializeField] private float shipRollClamp = 30f; 
+    private float currentCannonHeel;
 
-    private float currentHeel = 0f;
-
-    void LateUpdate()
+    void FixedUpdate()
     {
-        if (shipRoot == null) return;
+        if (windPush == null) return;
 
-        // read signed Z rotation
-        float roll = shipRoot.eulerAngles.z;
-        if (roll > 180f) roll -= 360f;
+        // Grab raw heel
+        float boatHeel = windPush.CurrentHeel;
 
-        // clamp ship roll to sane range
-        roll = Mathf.Clamp(roll, -shipRollClamp, shipRollClamp);
+        // Scale it down from the boat's maxHeelAngle
+        float scaled = Mathf.InverseLerp(-windPush.maxHeelAngle, windPush.maxHeelAngle, boatHeel);
+        float target = Mathf.Lerp(-90f - maxCannonHeel, -90f + maxCannonHeel, scaled);
 
-        // remap to 0..1
-        float t = Mathf.InverseLerp(-shipRollClamp, shipRollClamp, roll);
+        // Smooth
+        currentCannonHeel = Mathf.Lerp(currentCannonHeel, target, Time.fixedDeltaTime * smoothing);
 
-        // remap to -maxHeel..maxHeel
-        float targetHeel = Mathf.Lerp(-maxHeel, maxHeel, t);
-
-        // smooth
-        currentHeel = Mathf.Lerp(currentHeel, targetHeel, Time.deltaTime * smooth);
-
-        // apply to this parent
-        Vector3 e = transform.localEulerAngles;
-        e.z = currentHeel;
-        transform.localEulerAngles = e;
+        // Apply rotation
+        transform.localRotation = Quaternion.Euler(currentCannonHeel, 0f, 0f);
     }
 }

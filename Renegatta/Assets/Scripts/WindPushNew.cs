@@ -14,7 +14,7 @@ public class WindPushNew : MonoBehaviour
 
     [Header("Heel")]
     [SerializeField] private Transform hullVisual;
-    [SerializeField] private float maxHeelAngle = 8f;     // visual-only tilt, in degrees
+    [SerializeField] public float maxHeelAngle = 8f;     // visual-only tilt, in degrees
     [SerializeField] private float heelSmoothing = 3f;    // higher = snappier
     private float currentHeel;
 
@@ -37,7 +37,7 @@ public class WindPushNew : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         windDir = Vector3.right;
-        health = GetComponent<PlayerHealth>(); 
+        health = GetComponent<PlayerHealth>();
     }
 
     void Start()
@@ -159,9 +159,11 @@ public class WindPushNew : MonoBehaviour
         ForeBall.localPosition = Vector3.Lerp(ForeBall.localPosition, foreTargetPos, Time.fixedDeltaTime);
     }
 
-public void AddCoinBoost(float amount)
-{
-    rb.AddForce(hull.right * amount, ForceMode.VelocityChange);
-}
+    public void AddCoinBoost(float amount)
+    {
+        rb.AddForce(hull.right * amount, ForceMode.VelocityChange);
+    }
+
+    public float CurrentHeel => currentHeel;
 
 }

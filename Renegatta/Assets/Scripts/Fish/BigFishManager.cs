@@ -9,16 +9,17 @@ public class BigFishManager : MonoBehaviour
     public float maxInterval = 40f;
     private int minCount = 1;
     private int maxCount = 3;
+    public PlayerHealth playerHealth;
 
     [Header("Prefabs")]
     public List<BigFishUnit> fishPrefabs = new List<BigFishUnit>();
 
-    [Header("Requirements")]
-    public PlayerHealth playerHealth;
+
 
     private float timer;
     private bool eventActive;
     private int unitsRemaining;
+
 
     void Start()
     {
@@ -53,7 +54,22 @@ public class BigFishManager : MonoBehaviour
         if (fishPrefabs.Count == 0) return;
 
         var prefab = fishPrefabs[Random.Range(0, fishPrefabs.Count)];
-        int count = Random.Range(minCount, maxCount + 1);
+        var behavior = prefab.behavior;
+
+        // clamp the max count based on behavior
+        int allowedMax = behavior switch
+        {
+            BigFishBehavior.Follow => 1,
+            BigFishBehavior.WakeRide => 2,
+            BigFishBehavior.BowCross => 3,
+            _ => 1
+        };
+
+        // your minCount might be too high, so clamp that too
+        int min = Mathf.Clamp(minCount, 1, allowedMax);
+        int max = Mathf.Clamp(maxCount, 1, allowedMax);
+
+        int count = Random.Range(min, max + 1);
 
         Vector3 spawnPos =
             playerShip.position
@@ -66,11 +82,15 @@ public class BigFishManager : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Vector3 offset = Random.insideUnitSphere * 16f;
-            //rotated 90 degrees around y axis
-            var unit = Instantiate(prefab, spawnPos + new Vector3(offset.x, 0f, offset.z), Quaternion.Euler(0f, 90f, 0f));
+
+            var unit = Instantiate(
+                prefab,
+                spawnPos + new Vector3(offset.x, 0f, offset.z),
+                Quaternion.Euler(0f, 90f, 0f)
+            );
+
             unit.manager = this;
             unit.player = playerShip;
-            //set this as parent.
             unit.transform.parent = transform;
         }
     }

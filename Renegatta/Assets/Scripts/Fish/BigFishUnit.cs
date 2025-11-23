@@ -15,6 +15,10 @@ public class BigFishUnit : MonoBehaviour
     [Header("Movement")]
     public float speed = 8f;
     public float diveSpeed = 5f;
+    public float surfaceYWakeRiderOffset = 0f;
+    public Vector3 modelEulerWakeRiderOffset = Vector3.zero;
+    public float followLerp = 3f;
+    public float rotateLerp;
 
     [Header("Lifetime")]
     public float activeTime = 6f;
@@ -25,12 +29,18 @@ public class BigFishUnit : MonoBehaviour
     private float timer;
     private bool descending;
     private bool finished;
+    private bool surfaced;
 
     private float bowCrossHeightOffset = -6f;
+    public AudioClip dolphinSfx;
+    private Vector3 cachedOffset;
 
     void Start()
     {
         timer = activeTime;
+        cachedOffset = Random.value < 0.5f ?
+               new Vector3(4f, -1f, 3.1f) :
+               new Vector3(4f, -1f, -3.1f);
     }
 
     void Update()
@@ -77,7 +87,7 @@ public class BigFishUnit : MonoBehaviour
 
     void DoFollow()
     {
-        Vector3 target = new Vector3(player.position.x, 0f, player.position.z) + Vector3.back * 10f + Vector3.down * 2f;
+        Vector3 target = new Vector3(player.position.x, 0f, player.position.z) + Vector3.back * 10f + Vector3.down * 4f;
 
         // Move forward toward target
         transform.position += (target - transform.position).normalized * speed * Time.deltaTime;
@@ -89,23 +99,52 @@ public class BigFishUnit : MonoBehaviour
 
         // Begin descending gradually
         if (timer < activeTime * 0.4f)
-            transform.position += Vector3.down * diveSpeed * Time.deltaTime;
+            transform.position += Vector3.down * diveSpeed * 1.5f * Time.deltaTime;
     }
 
     void DoWakeRide()
     {
-        Vector3 bowPoint = new Vector3(player.position.x, 0f, player.position.z)
-                           + player.right * 6f;
+        Vector3 pos = transform.position;
 
-        Vector3 oldPos = transform.position;
-        Vector3 next = Vector3.MoveTowards(oldPos, bowPoint, speed * Time.deltaTime);
+        Vector3 target = player.TransformPoint(cachedOffset);
 
-        // preserve Y
-        next.y = oldPos.y;
-        transform.position = next;
+        float desiredY = target.y + surfaceYWakeRiderOffset;
 
-        transform.forward = Vector3.Lerp(transform.forward, player.forward, Time.deltaTime * 3f);
+        // 1) Rise toward surface
+        if (!surfaced)
+        {
+            pos.y = Mathf.MoveTowards(pos.y, desiredY, diveSpeed * Time.deltaTime);
+
+            if (Mathf.Abs(pos.y - desiredY) < 0.05f)
+            {
+                pos.y = desiredY;
+                surfaced = true;
+
+                if (dolphinSfx != null && Random.value < 0.5f)
+                    AudioSource.PlayClipAtPoint(dolphinSfx, pos, Random.Range(0.25f, 0.3f));
+            }
+        }
+        else if (!descending)
+        {
+            pos.y = desiredY;
+        }
+
+        // 2) Follow XZ
+        Vector3 targetXZ = new Vector3(target.x, pos.y, target.z);
+        pos = Vector3.Lerp(pos, targetXZ, followLerp * Time.deltaTime);
+
+        transform.position = pos;
+
+        if (player != null)
+        {
+            Quaternion look = Quaternion.LookRotation(player.forward, Vector3.up)
+                              * Quaternion.Euler(modelEulerWakeRiderOffset);
+
+            // Slow down rotation by interpolating from current to target
+            transform.rotation = Quaternion.Slerp(transform.rotation, look, rotateLerp * Time.deltaTime);
+        }
     }
+
 
     void DoBowCross()
     {
