@@ -22,6 +22,10 @@ public class ShipCannonController : MonoBehaviour
     public float reloadDuration = 1.5f;    // normal reload time
     private float reloadTimer;
     private bool cannonsReady = false;
+    public AudioSource reloadAudioSource;
+    float reloadVolumeOriginal;
+    public float reloadSFXDelay;
+    bool SFXinitialized = false;
 
     public float minForce = 10f;
     public float maxForce = 100f;
@@ -77,6 +81,8 @@ public class ShipCannonController : MonoBehaviour
             defaultCapacity: 12,
             maxSize: 100
         );
+
+        reloadVolumeOriginal = reloadAudioSource.volume;
     }
 
     void Start()
@@ -106,7 +112,7 @@ public class ShipCannonController : MonoBehaviour
             if (reloadTimer <= 0f)
             {
                 cannonsReady = true;
-                //SetPredictorsVisible(true);
+
             }
         }
 
@@ -127,9 +133,24 @@ public class ShipCannonController : MonoBehaviour
             cannonsReady = false;
             SetPredictorsVisible(false);
             reloadTimer = reloadDuration;
+            if (SFXinitialized)
+            {
+                Invoke("BeginReloadSFXTimer", reloadSFXDelay);
+            }
+            else if (!SFXinitialized)
+            {
+                SFXinitialized = true;
+            }
             FireAllCannons();
             OnCannonVisualSignal?.Invoke(0f);
         }
+    }
+
+    private void BeginReloadSFXTimer()
+    {
+        reloadAudioSource.volume = UnityEngine.Random.Range(0.8f, 1.2f) * reloadVolumeOriginal;
+        reloadAudioSource.pitch = UnityEngine.Random.Range(0.8f, 1.2f);
+        reloadAudioSource.Play();
     }
 
     private void UpdatePredictorLines()
