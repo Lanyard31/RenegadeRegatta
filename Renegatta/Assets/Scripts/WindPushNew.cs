@@ -26,18 +26,23 @@ public class WindPushNew : MonoBehaviour
     private Vector3 foreBallFullPos;
     private Vector3 mainBallEmptyPos;
     private Vector3 foreBallEmptyPos;
+    public AudioSource windFlapAudioSource;
+    float windFlapSFXvolumeOriginal;
 
     private Rigidbody rb;
     Vector3 pushDir;
     Vector3 windDir;
     private PlayerHealth health;
     private float healthPenalty = 0f;
+    private string previousAlignmentCategory = "";
+
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         windDir = Vector3.right;
         health = GetComponent<PlayerHealth>();
+        windFlapSFXvolumeOriginal = windFlapAudioSource.volume;
     }
 
     void Start()
@@ -112,6 +117,21 @@ public class WindPushNew : MonoBehaviour
             pushDir = hull.right;
             rb.AddForce(pushDir * accelerationForce * efficiency, ForceMode.Acceleration);
         }
+
+        // --- WindFlap SFX: Beam Reach -> Broad Reach ---
+        if (previousAlignmentCategory == "Beam Reach" && alignmentCategory == "Broad Reach")
+        {
+            if (!windFlapAudioSource.isPlaying)
+            {
+                windFlapAudioSource.volume = Random.Range(0.8f, 1.2f) * windFlapSFXvolumeOriginal;
+                windFlapAudioSource.pitch = Random.Range(0.8f, 1.2f);
+                windFlapAudioSource.Play();
+            }
+        }
+
+        // Update previous category for next frame
+        previousAlignmentCategory = alignmentCategory;
+
 
         //Debug.Log($"Spars vs Wind Angle: {sparsWindAngle:F1}°, Category: {alignmentCategory}, BoatSpeed: {boatSpeed:F2}");
     }
