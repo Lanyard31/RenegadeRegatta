@@ -43,7 +43,7 @@ public class BoatCollisionBounce : MonoBehaviour
             // Apply lateral push scaled by nudgeMultiplier
             pushDir += lateralDir * nudgeMultiplier;
 
-            //Debug.Log($"Hit from below. Velocity: {rb.linearVelocity}, pushDir: {pushDir}");
+            Debug.Log($"Hit from below. Velocity: {rb.linearVelocity}, pushDir: {pushDir}");
         }
         else
         {

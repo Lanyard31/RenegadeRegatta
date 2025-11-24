@@ -172,51 +172,44 @@ public class BigFishUnit : MonoBehaviour
         transform.forward = crossDir.normalized;
     }
 
-    void AirCrossing()
+void AirCrossing()
+{
+    // pick direction once based on spawn rotation and offset spawn behind flight path
+    if (!airDirectionSet)
     {
-        // pick direction once based on spawn rotation and offset spawn behind flight path
-        if (!airDirectionSet)
-        {
-            // rotate spawn forward 0° on Y (or adjust if you want "with the wind")
-            airCrossDir = Quaternion.Euler(0f, Random.Range(-10f, 10f), 0f) * transform.forward;
+        // rotate spawn forward 0° on Y (or adjust if you want "with the wind")
+        airCrossDir = Quaternion.Euler(0f, Random.Range(-10f, 10f), 0f) * transform.forward;
 
-            // move spawn back along the flight path so bird starts off-camera
-            transform.position -= airCrossDir.normalized * spawnDistanceAir;
+        // move spawn back along the flight path so bird starts off-camera
+        transform.position -= airCrossDir.normalized * spawnDistanceAir;
 
-            airDirectionSet = true;
-        }
+        airDirectionSet = true;
+    }
 
-        Vector3 oldPos = transform.position;
-        Vector3 next = oldPos + airCrossDir.normalized * speed * Time.deltaTime;
+    Vector3 oldPos = transform.position;
+    Vector3 next = oldPos + airCrossDir.normalized * speed * Time.deltaTime;
 
-        // vertical movement
-        if (timer < activeTime * 0.4f)
-        {
-            // event ending, ascend to get off camera
-            next.y += 2f * Time.deltaTime; // faster ascent at end
-        }
+    // vertical movement
+    if (timer < activeTime * 0.4f)
+    {
+        // event ending, ascend to get off camera
+        next.y += 2f * Time.deltaTime; // faster ascent at end
+    }
+    else
+    {
+        // normal ascend/descend
+        if (ascending)
+            next.y += 0.5f * Time.deltaTime;
         else
-        {
-            // normal ascend/descend
-            if (ascending)
-                next.y += 0.5f * Time.deltaTime;
-            else
-                next.y -= 0.5f * Time.deltaTime;
+            next.y -= 0.5f * Time.deltaTime;
 
-            if (next.y >= bowCrossHeightOffset + 1f) ascending = false;
-            if (next.y <= bowCrossHeightOffset) ascending = true;
-        }
-
-        transform.position = next;
-        transform.forward = airCrossDir.normalized; // fixed flight direction
+        if (next.y >= bowCrossHeightOffset + 1f) ascending = false;
+        if (next.y <= bowCrossHeightOffset) ascending = true;
     }
 
-    public void ForceEarlyFinish()
-    {
-        if (!descending)
-            descending = true;
-    }
-
+    transform.position = next;
+    transform.forward = airCrossDir.normalized; // fixed flight direction
+}
 
     void Finish()
     {

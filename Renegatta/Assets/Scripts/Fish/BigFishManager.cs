@@ -28,19 +28,11 @@ public class BigFishManager : MonoBehaviour
 
     void Update()
     {
-        if (eventActive)
-        {
-            // If player health drops, force all units to end immediately.
-            if (playerHealth.GetHealthValue() < playerHealth.healthMax - 1f)
-            {
-                ForceEndEvent();
-            }
-            return;
-        }
+        if (eventActive) return;
 
         if (playerHealth.GetHealthValue() < playerHealth.healthMax - 1f)
         {
-            //Debug.Log("Player health too low to spawn big fish");
+            Debug.Log("Player health too low to spawn big fish");
         }
 
         timer -= Time.deltaTime;
@@ -51,16 +43,6 @@ public class BigFishManager : MonoBehaviour
             ResetTimer();
         }
     }
-
-    void ForceEndEvent()
-    {
-        // Tell all units to descend immediately.
-        foreach (var unit in GetComponentsInChildren<BigFishUnit>())
-        {
-            unit.ForceEarlyFinish();
-        }
-    }
-
 
     void ResetTimer()
     {

@@ -7,14 +7,14 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class PlayerHealth : MonoBehaviour
 {
-    [Header("Health")]
+    [Header("Health")]    
     public float healthMax = 100f;
     [SerializeField] private float health;
 
     [Header("Fires (assign particle GameObjects)")]
-    public ParticleSystem[] fire85;
-    public ParticleSystem[] fire50;
-    public ParticleSystem[] fire30;
+    public GameObject fire80;
+    public GameObject fire50;
+    public GameObject fire30;
 
     [Header("Invulnerability / Hitflash")]
     public float invulnerabilityDuration = 0.6f;
@@ -24,14 +24,10 @@ public class PlayerHealth : MonoBehaviour
     [Header("Penalty to WindPush (0..1)")]
     public AnimationCurve penaltyCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-    [Header("Audio / SFX")]
+    [Header("Audio / SFX")]    
     public AudioSource repairAudioSource;
-    public AudioSource fireAudioSource;
-    public AudioSource repairInterruptAudioSource;
-    float fireSFXvolumeOriginal;
-    float repairInterruptAudioSourceVolumeOriginal;
 
-    [Header("References")]
+    [Header("References")]    
     public MonoBehaviour hitFlash;
 
     // Events
@@ -48,8 +44,6 @@ public class PlayerHealth : MonoBehaviour
         health = healthMax;
         UpdateFires();
         PushPenalty();
-        fireSFXvolumeOriginal = fireAudioSource.volume;
-        repairInterruptAudioSourceVolumeOriginal = repairInterruptAudioSource.volume;
     }
 
     #region Public API
@@ -68,10 +62,6 @@ public class PlayerHealth : MonoBehaviour
         {
             StopCoroutine(regenCoroutine);
             regenCoroutine = null;
-            repairAudioSource.Stop();
-            repairInterruptAudioSource.volume = UnityEngine.Random.Range(0.9f, 1.1f) * repairInterruptAudioSourceVolumeOriginal;
-            repairInterruptAudioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
-            repairInterruptAudioSource.Play();
         }
         if (invulnCoroutine != null)
             StopCoroutine(invulnCoroutine);
@@ -110,7 +100,7 @@ public class PlayerHealth : MonoBehaviour
 
         yield return new WaitForSeconds(regenDelayAfterInvuln);
 
-        if (health < healthMax * 0.85f)
+        if (health < healthMax * 0.8f)
         {
             if (regenCoroutine != null) StopCoroutine(regenCoroutine);
             regenCoroutine = StartCoroutine(RegenRoutine());
@@ -150,70 +140,29 @@ public class PlayerHealth : MonoBehaviour
 
     private void UpdateFires()
     {
-        float t85 = healthMax * 0.85f;
-        float t50 = healthMax * 0.50f;
-        float t30 = healthMax * 0.30f;
+        float t80 = healthMax * 0.8f;
+        float t50 = healthMax * 0.5f;
+        float t30 = healthMax * 0.3f;
 
-        // 85% fires (turn off only when fully healed)
-        UpdateFireGroup(fire85, t85, healthMax);
-
-        // 50% fires (turn off when healed above 85%)
-        UpdateFireGroup(fire50, t50, t85);
-
-        // 30% fires (turn off when healed above 50%)
-        UpdateFireGroup(fire30, t30, t50);
-
-        // Fire audio
-        if (fireAudioSource != null)
+        if (fire80 != null)
         {
-            float damage = 1f - (health / Mathf.Max(healthMax, 0.001f));
-            float target = Mathf.Lerp(0f, fireSFXvolumeOriginal, damage);
-            fireAudioSource.volume = Mathf.Lerp(fireAudioSource.volume, target, Time.deltaTime * 5f);
+            bool on = (health <= t80) || (fire80.activeSelf && health < healthMax);
+            fire80.SetActive(on);
         }
+
+        if (fire50 != null)
+        {
+            bool on = (health <= t50) || (fire50.activeSelf && health < t80);
+            fire50.SetActive(on);
+        }
+
+        if (fire30 != null)
+        {
+            bool on = (health <= t30) || (fire30.activeSelf && health < t50);
+            fire30.SetActive(on);
+        }
+
     }
-
-    private void UpdateFireGroup(ParticleSystem[] systems, float triggerThreshold, float resetThreshold)
-    {
-        if (systems == null || systems.Length == 0) return;
-
-        // Evaluate whether any fire in this group is “on”
-        bool anyActive = false;
-        foreach (var ps in systems)
-        {
-            if (ps != null && ps.gameObject.activeSelf)
-            {
-                anyActive = true;
-                break;
-            }
-        }
-
-        bool shouldTurnOn = health <= triggerThreshold;
-        bool shouldTurnOff = anyActive && health >= resetThreshold;
-
-        foreach (var ps in systems)
-        {
-            if (ps == null) continue;
-            var go = ps.gameObject;
-
-            if (shouldTurnOn)
-            {
-                go.SetActive(true);
-                ps.Play();
-            }
-            else if (go.activeSelf && shouldTurnOff)
-            {
-                ps.Stop();
-                //go.SetActive(false);
-            }
-            else if (go.activeSelf)
-            {
-                // keep it playing; avoids restart if looping is disabled
-                if (!ps.isPlaying) ps.Play();
-            }
-        }
-    }
-
-
 
     private void PushPenalty()
     {
@@ -237,4 +186,10 @@ public class PlayerHealth : MonoBehaviour
 #endif
 
     #endregion
+
+    // ---------------------------------------------------------------------
+    // PARKED EXTRA FUNCTIONS (commented out)
+// ---------------------------------------------------------------------
+/*
+$1*/
 }
