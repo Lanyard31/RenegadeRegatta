@@ -90,12 +90,12 @@ public class WindPushNew : MonoBehaviour
         else if (sparsWindAngle <= 90f || sparsWindAngle >= 270f)
         {
             alignmentCategory = "Beam Reach";
-            efficiency = 0.6f;
+            efficiency = 0.65f;
         }
         else if (sparsWindAngle <= 100f || sparsWindAngle >= 200f)
         {
             alignmentCategory = "Close Reach";
-            efficiency = 0.4f;
+            efficiency = 0.55f;
         }
         else
         {
@@ -103,7 +103,7 @@ public class WindPushNew : MonoBehaviour
             efficiency = 0.1f; // Negative to slow down
         }
 
-        efficiency = efficiency * (1f - healthPenalty);
+        efficiency = efficiency * (1f - (healthPenalty * 0.5f));
 
         ApplyWindHeel(sparsWindAngle, efficiency, alignmentCategory);
         AdjustWindBalls(efficiency, alignmentCategory);

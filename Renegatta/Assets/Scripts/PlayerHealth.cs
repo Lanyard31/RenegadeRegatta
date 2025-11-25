@@ -39,7 +39,7 @@ public class PlayerHealth : MonoBehaviour
     public event Action<float> OnHealthPenaltyChanged;
     public event Action OnDeath;
 
-    private bool isInvulnerable = false;
+    public bool isInvulnerable = false;
     private Coroutine regenCoroutine;
     private Coroutine invulnCoroutine;
 
