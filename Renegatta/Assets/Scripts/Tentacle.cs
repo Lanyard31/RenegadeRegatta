@@ -38,6 +38,18 @@ public class Tentacle : MonoBehaviour
     [SerializeField] private AudioSource deathRoarSound;
     private float originalRoarVolume;
     [SerializeField] private ParticleSystem whipCrackParticles;
+    private bool dontScream;
+    private Quaternion deathTargetRotation;
+    private bool useDeathRotation = false; // flag to indicate we should rotate toward this
+
+    [Header("Attack Tuning")]
+    [SerializeField, Tooltip("Multiplier for GrabRock animation speed. 1 = normal, 0.5 = half speed.")]
+    private float grabRockSpeedMultiplier = 1f;
+
+    [SerializeField, Range(0f, 1f), Tooltip("Chance to idle after throwing a rock.")]
+    private float postThrowIdleChance = 0f;
+
+
 
     void Start()
     {
@@ -45,17 +57,19 @@ public class Tentacle : MonoBehaviour
         originalVolume = whipCrackSound.volume;
         originalRoarVolume = deathRoarSound.volume;
         currentHealth = maxHealth;
-
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p) player = p.transform;
 
-        // Start submerged
         Vector3 pos = transform.position;
         pos.y = submergedY;
         transform.position = pos;
 
         if (heldRock) heldRock.SetActive(false);
+
+        // Apply speed multiplier
+        anim.SetFloat("GrabRockSpeed", grabRockSpeedMultiplier);
     }
+
 
     void Update()
     {
@@ -91,15 +105,23 @@ public class Tentacle : MonoBehaviour
         {
             isDead = true;
             aboveWater = false;
-            verticalSpeed *= 1.65f;
+            verticalSpeed *= 1.7f;
             busy = true;
             anim.SetTrigger("Hit");
 
-            //randomize pitch and volume
-            deathRoarSound.pitch = Random.Range(0.9f, 1.1f);
-            deathRoarSound.volume = Random.Range(0.8f, 1.2f) * originalRoarVolume;
-            deathRoarSound.Play();
+            if (!dontScream)
+            {
+                deathRoarSound.pitch = Random.Range(0.9f, 1.1f);
+                deathRoarSound.volume = Random.Range(0.8f, 1.2f) * originalRoarVolume;
+                deathRoarSound.Play();
+            }
+
+            // Pick a random yaw for death rotation
+            float randomYaw = Random.Range(0f, 360f);
+            deathTargetRotation = Quaternion.Euler(0f, randomYaw, 0f);
+            useDeathRotation = true; // enable rotation toward this
         }
+
 
         float targetY = aboveWater ? emergedY : submergedY;
 
@@ -125,56 +147,53 @@ public class Tentacle : MonoBehaviour
         }
     }
 
-private void HandleRotation()
-{
-    if (!aboveWater || !player) return;
-
-    Vector3 dir = player.position - transform.position;
-    dir.y = 0;
-
-    if (dir.sqrMagnitude < 0.1f) return;
-
-    Quaternion targetRot = Quaternion.LookRotation(dir);
-
-    // Check animator state
-    var state = anim.GetCurrentAnimatorStateInfo(0);
-    bool isGrabbing = state.IsName("GrabRock");
-
-    if (isGrabbing && !armed)
+    private void HandleRotation()
     {
-            // Choose a one-time random yaw offset when animation starts
-            if (!grabRockOffsetChosen)
+        Quaternion targetRot;
+
+        if (isDead && useDeathRotation)
+        {
+            // Rotate toward random death rotation
+            targetRot = deathTargetRotation;
+        }
+        else
+        {
+            if (!aboveWater || !player) return;
+
+            Vector3 dir = player.position - transform.position;
+            dir.y = 0;
+
+            if (dir.sqrMagnitude < 0.1f) return;
+
+            targetRot = Quaternion.LookRotation(dir);
+
+            // Check animator state
+            var state = anim.GetCurrentAnimatorStateInfo(0);
+            bool isGrabbing = state.IsName("GrabRock");
+
+            if (isGrabbing && !armed)
             {
-                grabRockOffsetChosen = true;
-                // Choose either left or right side, avoiding the center
-                if (Random.value < 0.5f)
+                if (!grabRockOffsetChosen)
                 {
-                    // Negative range
-                    grabRockRandomYaw = Random.Range(-80f, -10f);
-                }
-                else
-                {
-                    // Positive range
-                    grabRockRandomYaw = Random.Range(10f, 80f);
+                    grabRockOffsetChosen = true;
+                    grabRockRandomYaw = Random.value < 0.5f ? Random.Range(-80f, -10f) : Random.Range(10f, 80f);
                 }
 
+                targetRot *= Quaternion.Euler(0f, grabRockRandomYaw, 0f);
             }
+            else
+            {
+                grabRockOffsetChosen = false;
+            }
+        }
 
-            // Apply the rotation offset
-            targetRot *= Quaternion.Euler(0f, grabRockRandomYaw, 0f);
-    }
-    else
-    {
-        // Reset so next grab picks a new value
-        grabRockOffsetChosen = false;
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            targetRot,
+            rotateSpeed * Time.deltaTime
+        );
     }
 
-    transform.rotation = Quaternion.Slerp(
-        transform.rotation,
-        targetRot,
-        rotateSpeed * Time.deltaTime
-    );
-}
 
 
     private void HandleThrowLogic(float dist)
@@ -199,62 +218,81 @@ private void HandleRotation()
         armed = true;
     }
 
-public void OnThrowRock()
-{
-    if (heldRock) heldRock.SetActive(false);
-
-    armed = false;
-
-    GameObject rock = Instantiate(rockPrefab, throwPoint.position, throwPoint.rotation);
-
-    whipCrackParticles.Play();
-
-    if (rock.TryGetComponent<Rigidbody>(out var rb))
+    public void OnThrowRock()
     {
-        Vector3 target = player.position + Vector3.up * 1.2f; // aim for upper body
-        Vector3 start = throwPoint.position;
+        if (heldRock) heldRock.SetActive(false);
 
-        float speed = 25f;
+        armed = false;
 
-        // Compute launch velocity
-        Vector3 toTarget = target - start;
-        Vector3 toTargetXZ = new Vector3(toTarget.x, 0, toTarget.z);
-        float y = toTarget.y;
-        float xz = toTargetXZ.magnitude;
+        GameObject rock = Instantiate(rockPrefab, throwPoint.position, throwPoint.rotation);
 
-        float gravity = Mathf.Abs(Physics.gravity.y);
-        float v2 = speed * speed;
+        whipCrackParticles.Play();
 
-        float underRoot = v2 * v2 - gravity * (gravity * xz * xz + 2 * y * v2);
-        if (underRoot < 0f) underRoot = 0f; // in case target is VERY close
+        if (rock.TryGetComponent<Rigidbody>(out var rb))
+        {
+            Vector3 target = player.position + Vector3.up * 1.2f; // aim for upper body
+            Vector3 start = throwPoint.position;
 
-        float root = Mathf.Sqrt(underRoot);
+            float speed = 25f;
 
-        float lowAngle = Mathf.Atan( (v2 - root) / (gravity * xz) );
+            // Compute launch velocity
+            Vector3 toTarget = target - start;
+            Vector3 toTargetXZ = new Vector3(toTarget.x, 0, toTarget.z);
+            float y = toTarget.y;
+            float xz = toTargetXZ.magnitude;
 
-        Vector3 launchDir = toTargetXZ.normalized;
-        Vector3 launchVelocity =
-            launchDir * Mathf.Cos(lowAngle) * speed +
-            Vector3.up * Mathf.Sin(lowAngle) * speed;
+            float gravity = Mathf.Abs(Physics.gravity.y);
+            float v2 = speed * speed;
 
-        rb.linearVelocity = launchVelocity;
-        //add slight random spin
-        rb.AddTorque(Random.Range(-75f, 75f), Random.Range(-75f, 75f), Random.Range(-75f, 75f));
+            float underRoot = v2 * v2 - gravity * (gravity * xz * xz + 2 * y * v2);
+            if (underRoot < 0f) underRoot = 0f; // in case target is VERY close
+
+            float root = Mathf.Sqrt(underRoot);
+
+            float lowAngle = Mathf.Atan((v2 - root) / (gravity * xz));
+
+            Vector3 launchDir = toTargetXZ.normalized;
+            Vector3 launchVelocity =
+                launchDir * Mathf.Cos(lowAngle) * speed +
+                Vector3.up * Mathf.Sin(lowAngle) * speed;
+
+            rb.linearVelocity = launchVelocity;
+            //add slight random spin
+            rb.AddTorque(Random.Range(-75f, 75f), Random.Range(-75f, 75f), Random.Range(-75f, 75f));
+        }
     }
-}
 
-    // Called at the END of GrabRock or Throw animations
     public void OnAnimationFinished()
     {
         busy = false;
 
-        // If Throw finished, prepare next rock immediately
+        // If Throw finished
+        if (!armed && aboveWater && currentHealth > 0)
+        {
+            // Chance to idle after throw
+            if (Random.value < postThrowIdleChance)
+            {
+                busy = true;
+                Invoke(nameof(ResumeAfterIdle), Random.Range(0.5f, 1.5f));
+            }
+            else
+            {
+                busy = true;
+                anim.SetTrigger("GrabRock");
+            }
+        }
+    }
+
+    private void ResumeAfterIdle()
+    {
+        busy = false;
         if (!armed && aboveWater && currentHealth > 0)
         {
             busy = true;
             anim.SetTrigger("GrabRock");
         }
     }
+
 
     public void TakeDamage(int dmg)
     {
@@ -295,4 +333,11 @@ public void OnThrowRock()
         var method = type.GetMethod("Flash") ?? type.GetMethod("DoFlash");
         if (method != null) method.Invoke(hitFlash, null);
     }
+
+    public void DontScreamDeath()
+    {
+        dontScream = true;
+        currentHealth = 0;
+    }
 }
+

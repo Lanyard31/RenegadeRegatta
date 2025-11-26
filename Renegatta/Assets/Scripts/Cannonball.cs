@@ -56,6 +56,15 @@ public class Cannonball : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
         }
 
+        else if (collision.transform.tag == "Boss")
+        {
+            Instantiate(explosionVFX, transform.position, Quaternion.FromToRotation(Vector3.up, collision.contacts[0].normal));
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            collision.transform.GetComponent<SkullBoss>()?.TakeDamage(1);
+        }
+
+
         pool.Release(gameObject);
     }
 

@@ -230,19 +230,56 @@ public class ShipCannonController : MonoBehaviour
     }
 
 
-    void SetPredictorVisibility(TrajectoryPredictor predictor, bool visible)
+void SetPredictorVisibility(TrajectoryPredictor predictor, bool visible)
+{
+    if (predictor == null)
+        return;
+
+    if (playerHealth.isInvulnerable)
+        visible = false;
+
+    // Let the predictor draw (or not) on prediction
+    predictor.drawDebugOnPrediction = visible;
+
+    // If the debug line exists, enable/disable the LineRenderer
+    if (predictor.debugLine != null)
     {
-        if (predictor == null) return;
-        if (playerHealth.isInvulnerable) visible = false;
-
-        // Let the predictor draw (or not) on prediction
-        predictor.drawDebugOnPrediction = visible;
-
-        // If the debug line exists, enable/disable the LineRenderer
-        if (predictor.debugLine != null)
+        LineRenderer lr = predictor.debugLine;
+        lr.enabled = visible;
+        // Apply color/material for immediate visibility — robust for different render pipelines
+        if (visible)
         {
-            LineRenderer lr = predictor.debugLine;
-            lr.enabled = visible;
+            if (lineMaterial != null)
+            {
+                lr.sharedMaterial = lineMaterial;
+            }
+            else if (lineShader != null && lr.material != null)
+            {
+                lr.material.shader = lineShader;
+            }
+
+            // Ensure texture is assigned if present
+            if (lineTexture != null && lr.material != null)
+            {
+                lr.material.mainTexture = lineTexture;
+            }
+
+            // Force color to red
+            if (lr.material != null)
+            {
+                // Common safe assignment
+                lr.material.color = lineColor;
+
+                // Also attempt common shader property names
+                if (lr.material.HasProperty("_Color"))
+                    lr.material.SetColor("_Color", lineColor);
+
+                if (lr.material.HasProperty("_BaseColor"))
+                    lr.material.SetColor("_BaseColor", lineColor);
+            }
         }
+        
     }
+}
+
 }

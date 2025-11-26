@@ -319,6 +319,7 @@ MonoBehaviour:
   flashCount: 3
   skipObjects:
   - {fileID: 3864555835978047780}
+  - {fileID: 4931704536548724291}
 --- !u!1 &4535306585419161788
 GameObject:
   m_ObjectHideFlags: 0
@@ -826,6 +827,11 @@ PrefabInstance:
 --- !u!198 &3203542087219844516 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 5366269438563134495, guid: a500764f1a0d3654db7718249e73c3d3, type: 3}
+  m_PrefabInstance: {fileID: 7353697667976247739}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4931704536548724291 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2485276936549234680, guid: a500764f1a0d3654db7718249e73c3d3, type: 3}
   m_PrefabInstance: {fileID: 7353697667976247739}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &7469880484727234233 stripped

@@ -85,17 +85,17 @@ public class WindPushNew : MonoBehaviour
         else if (sparsWindAngle <= 60f || sparsWindAngle >= 300f)
         {
             alignmentCategory = "Broad Reach";
-            efficiency = 0.8f;
+            efficiency = 0.85f;
         }
         else if (sparsWindAngle <= 90f || sparsWindAngle >= 270f)
         {
             alignmentCategory = "Beam Reach";
-            efficiency = 0.65f;
+            efficiency = 0.75f;
         }
         else if (sparsWindAngle <= 100f || sparsWindAngle >= 200f)
         {
             alignmentCategory = "Close Reach";
-            efficiency = 0.55f;
+            efficiency = 0.65f;
         }
         else
         {
