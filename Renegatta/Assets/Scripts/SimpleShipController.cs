@@ -48,8 +48,11 @@ public class SimpleShipController : MonoBehaviour
     private void HandleHullRotation()
     {
         float turnInput = 0f;
-        if (Input.GetKey(KeyCode.A)) turnInput = -1f;
-        if (Input.GetKey(KeyCode.D)) turnInput = 1f;
+        // allow left arrow as alternate
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+        { turnInput = -1f; }
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        { turnInput = 1f; }
 
         // Build or decay helm acceleration
         if (turnInput != 0f)
@@ -116,4 +119,19 @@ public class SimpleShipController : MonoBehaviour
             sparsAccelTimer = Mathf.Max(0f, sparsAccelTimer - sparsDecelRate * Time.fixedDeltaTime);
         }
     }
+
+    public float GetSparsAngle()
+    {
+        return sparsCurrentAngle;
+    }
+
+    public void SetSparsAngle(float angle)
+    {
+        float delta = angle - sparsCurrentAngle;
+        sparsCurrentAngle = angle;
+
+        mainSpars.Rotate(0f, 0f, delta, Space.Self);
+        foreSpars.Rotate(0f, 0f, delta, Space.Self);
+    }
+
 }

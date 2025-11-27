@@ -222,6 +222,10 @@ public class PlayerHealth : MonoBehaviour
         OnHealthPenaltyChanged?.Invoke(penalty);
     }
 
+    void OnDisable()
+    {
+        repairAudioSource.Stop();
+    }
     //lambda expression to get current health 
     public float GetHealthValue() => health;
 

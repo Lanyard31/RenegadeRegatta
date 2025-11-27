@@ -185,5 +185,7 @@ public class WindPushNew : MonoBehaviour
     }
 
     public float CurrentHeel => currentHeel;
+    public Vector3 WindDirection => windDir;
+
 
 }

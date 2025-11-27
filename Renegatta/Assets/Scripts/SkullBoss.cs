@@ -180,7 +180,7 @@ public class SkullBoss : MonoBehaviour
         Quaternion targetRot = Quaternion.Euler(-110f, transform.eulerAngles.y, 0f);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotateSpeed * 0.2f * Time.deltaTime);
 
-        if (p.y <= submergedY - 2f)
+        if (p.y <= submergedY - 1f)
             Destroy(gameObject);
     }
 
@@ -201,6 +201,7 @@ public class SkullBoss : MonoBehaviour
 
     private void StartDeathSequence()
     {
+        Debug.Log("StartDeathSequence called");
         isDead = true;
         aboveWater = false;
         rising = false;
