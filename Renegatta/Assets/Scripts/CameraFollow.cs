@@ -38,6 +38,17 @@ public class CameraFollow : MonoBehaviour
             currentZoom -= scroll * zoomSpeed;
             currentZoom = Mathf.Clamp(currentZoom, minZ, maxZ);
         }
+        //same thing but with up and down arrows
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            currentZoom -= zoomSpeed * 0.5f * Time.deltaTime;
+            currentZoom = Mathf.Clamp(currentZoom, minZ, maxZ);
+        }
+        else if (Input.GetKey(KeyCode.DownArrow))
+        {
+            currentZoom += zoomSpeed * 0.5f * Time.deltaTime;
+            currentZoom = Mathf.Clamp(currentZoom, minZ, maxZ);
+        }
     }
     
 

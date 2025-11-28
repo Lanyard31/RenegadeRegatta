@@ -13,6 +13,7 @@ public class DeathHandler : MonoBehaviour
 
     [Header("Death UI")]
     public GameObject shipwreckedUIPanel;
+    public MusicController musicController;
 
     [Header("Death Animation")]
     public float deathTiltZ = 20f;

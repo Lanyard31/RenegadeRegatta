@@ -22,6 +22,7 @@ public class VictoryHandler : MonoBehaviour
     [SerializeField] private TransitionSettings transitionSettings;
     [SerializeField] private float transitionDuration = 1f;
     [SerializeField] private TransitionManager transitionManager;
+    [SerializeField] private MusicController musicController;
 
     private float timer;
     private bool victoryTriggered;
@@ -53,6 +54,8 @@ public class VictoryHandler : MonoBehaviour
 
     private void PanelPopup()
     {
+        musicController.ChangeToVictoryMusic();
+
         // Disable movement etc.
         foreach (var c in componentsToDisable)
         {
@@ -97,6 +100,7 @@ public class VictoryHandler : MonoBehaviour
 
     public void Retry()
     {
+        musicController.ChangeToLevelMusic();
         Scene current = SceneManager.GetActiveScene();
         transitionManager.Transition(
             current.name,
@@ -107,6 +111,8 @@ public class VictoryHandler : MonoBehaviour
 
     public void ReturnToMenu()
     {
+        musicController.dontDestroyOnLoad = false;
+
         transitionManager.Transition(
             "StartScene",
             transitionSettings,

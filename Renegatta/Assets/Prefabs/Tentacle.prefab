@@ -102,11 +102,13 @@ MonoBehaviour:
   emergeDistance: 100
   throwDistance: 95
   rotateSpeed: 4
-  maxHealth: 4
+  maxHealth: 3
   hitFlash: {fileID: 1215658602671827647}
   whipCrackSound: {fileID: 7945496634366850933}
   deathRoarSound: {fileID: 3279855518097383275}
   whipCrackParticles: {fileID: 3864555835978047781}
+  grabRockSpeedMultiplier: 1
+  postThrowIdleChance: 0
 --- !u!82 &7945496634366850933
 AudioSource:
   m_ObjectHideFlags: 0

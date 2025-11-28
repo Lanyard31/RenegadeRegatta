@@ -35,6 +35,7 @@ public class WindPushNew : MonoBehaviour
     private PlayerHealth health;
     private float healthPenalty = 0f;
     private string previousAlignmentCategory = "";
+    public string AlignmentCategory { get; private set; }
 
 
     void Awake()
@@ -102,6 +103,9 @@ public class WindPushNew : MonoBehaviour
             alignmentCategory = "Misaligned";
             efficiency = 0.1f; // Negative to slow down
         }
+
+        //update the public getter
+        AlignmentCategory = alignmentCategory;
 
         efficiency = efficiency * (1f - (healthPenalty * 0.5f));
 
