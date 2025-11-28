@@ -44,6 +44,13 @@ public class BoatCollisionBounce : MonoBehaviour
             pushDir += lateralDir * nudgeMultiplier;
 
             //Debug.Log($"Hit from below. Velocity: {rb.linearVelocity}, pushDir: {pushDir}");
+
+var rush = GetComponent<WaterRushController>();
+if (rush != null)
+{
+    rush.OnGroundedBounce();
+}
+
         }
         else
         {
