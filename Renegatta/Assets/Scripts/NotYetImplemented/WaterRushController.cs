@@ -33,23 +33,31 @@ public class WaterRushController : MonoBehaviour
         originalVolume = waterAudio.volume;
     }
 
-    void Update()
+void Update()
+{
+    float eff = ComputeEfficiency();
+
+    // Clamp efficiency between a tiny floor and full speed
+    eff = Mathf.Clamp(eff, 0.001f, 1f);
+
+    // -------- Volume Lerp --------
+    float targetVolume = originalVolume * eff;
+
+    // Hard clamp the target volume between your original and a floor
+    targetVolume = Mathf.Clamp(targetVolume, 0.001f, originalVolume);
+
+    waterAudio.volume = Mathf.Lerp(waterAudio.volume, targetVolume, Time.deltaTime * volumeLerpSpeed);
+
+    // -------- Particle Control --------
+    bool shouldBeActive = eff > particleCutoff;
+
+    if (shouldBeActive != particlesActive)
     {
-        float eff = ComputeEfficiency();
-
-        // -------- Volume Lerp --------
-        float targetVolume = originalVolume * eff;
-        waterAudio.volume = Mathf.Lerp(waterAudio.volume, targetVolume, Time.deltaTime * volumeLerpSpeed);
-
-        // -------- Particle Control --------
-        bool shouldBeActive = eff > particleCutoff;
-
-        if (shouldBeActive != particlesActive)
-        {
-            SetParticlesActive(shouldBeActive);
-            particlesActive = shouldBeActive;
-        }
+        SetParticlesActive(shouldBeActive);
+        particlesActive = shouldBeActive;
     }
+}
+
 
     private float ComputeEfficiency()
     {
@@ -61,7 +69,7 @@ public class WaterRushController : MonoBehaviour
             case "Broad Reach": return 0.85f;
             case "Beam Reach": return 0.75f;
             case "Close Reach": return 0.65f;
-            default: return 0f; // Misaligned, stalled, etc.
+            default: return 0.001f; // Misaligned, stalled, etc.
         }
     }
 

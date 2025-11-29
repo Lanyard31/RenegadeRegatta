@@ -13,6 +13,7 @@ public class SimpleShipController : MonoBehaviour
     public float hullDamping = 2f;
     public float lowSpeedTurnBoost = 1.5f;
     public float lowSpeedThreshold = 4f;
+    [SerializeField] AudioSource wheelTurnAudioSource;
 
     [Header("Hull Acceleration")]
     public float hullAccelRate = 0.7f;      // Same pattern as spars
@@ -24,6 +25,7 @@ public class SimpleShipController : MonoBehaviour
     public float sparsTurnSpeed = 50f;
     public float maxSparsAngle = 70f;
     private float sparsCurrentAngle = 0f;
+    [SerializeField] AudioSource ropePullAudioSource;
 
     [Header("Spars Acceleration")]
     public float sparsAccelRate = 0.7f;
@@ -62,11 +64,18 @@ public class SimpleShipController : MonoBehaviour
                 0f,
                 hullAccelMax
             );
+
+            if (wheelTurnAudioSource.isPlaying == false)
+            {
+                wheelTurnAudioSource.Play();
+            }
         }
         else
         {
             hullAccelTimer = Mathf.Max(0f,
                 hullAccelTimer - hullDecelRate * Time.fixedDeltaTime);
+            
+            wheelTurnAudioSource.Stop();
         }
 
         float helmMultiplier = 1f + hullAccelTimer;
@@ -113,10 +122,16 @@ public class SimpleShipController : MonoBehaviour
 
             mainSpars.Rotate(0f, 0f, deltaAngle, Space.Self);
             foreSpars.Rotate(0f, 0f, deltaAngle, Space.Self);
+
+            if (ropePullAudioSource.isPlaying == false)
+            {
+                ropePullAudioSource.Play();
+            }
         }
         else
         {
             sparsAccelTimer = Mathf.Max(0f, sparsAccelTimer - sparsDecelRate * Time.fixedDeltaTime);
+            ropePullAudioSource.Stop();
         }
     }
 

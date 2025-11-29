@@ -39,6 +39,12 @@ public class SchoolOfFish : MonoBehaviour
         parentTrigger.center = boxCenter;
     }
 
+    void Start()
+    {
+        if (player == null)
+            player = GameObject.FindGameObjectWithTag("Player").transform;
+    }
+
     void Update()
     {
         if (scattered) return;

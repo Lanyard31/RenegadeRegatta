@@ -32,8 +32,7 @@ public class WindPushNew : MonoBehaviour
     private Rigidbody rb;
     Vector3 pushDir;
     Vector3 windDir;
-    private PlayerHealth health;
-    private float healthPenalty = 0f;
+
     private string previousAlignmentCategory = "";
     public string AlignmentCategory { get; private set; }
 
@@ -42,7 +41,6 @@ public class WindPushNew : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         windDir = Vector3.right;
-        health = GetComponent<PlayerHealth>();
         windFlapSFXvolumeOriginal = windFlapAudioSource.volume;
     }
 
@@ -53,14 +51,8 @@ public class WindPushNew : MonoBehaviour
 
         mainBallEmptyPos = MainBall.localPosition - new Vector3(emptyOffset, 0, 0);
         foreBallEmptyPos = ForeBall.localPosition - new Vector3(emptyOffset, 0, 0);
-
-        health.OnHealthPenaltyChanged += HandleHealthPenaltyChanged;
     }
 
-    private void HandleHealthPenaltyChanged(float penalty)
-    {
-        healthPenalty = penalty;  // cache it
-    }
 
     void FixedUpdate()
     {
@@ -106,8 +98,6 @@ public class WindPushNew : MonoBehaviour
 
         //update the public getter
         AlignmentCategory = alignmentCategory;
-
-        efficiency = efficiency * (1f - (healthPenalty * 0.5f));
 
         ApplyWindHeel(sparsWindAngle, efficiency, alignmentCategory);
         AdjustWindBalls(efficiency, alignmentCategory);

@@ -31,6 +31,7 @@ public class SkullBoss : MonoBehaviour
 
     [Header("SFX")]
     [SerializeField] private AudioSource deathSFX;
+    [SerializeField] private AudioSource emergeSFX;
     private float deathVolume;
 
     [Header("Linked Tentacles")]
@@ -40,6 +41,7 @@ public class SkullBoss : MonoBehaviour
     private bool aboveWater;
     private bool rising;
     private bool isDead;
+    private bool playEmergeSFXOnce;
 
     public static event Action OnSkullBossDefeated;
 
@@ -91,6 +93,12 @@ public class SkullBoss : MonoBehaviour
         {
             aboveWater = true;
             rising = true;
+            playEmergeSFXOnce = true;
+            if (emergeSFX)
+            {
+                emergeSFX.Play();
+                playEmergeSFXOnce = false;
+            }
         }
 
         // Only disable WaveFollower once at the start of rising
@@ -205,6 +213,7 @@ public class SkullBoss : MonoBehaviour
         isDead = true;
         aboveWater = false;
         rising = false;
+        MusicController.Instance.ChangeToVictoryMusic();
         if (waveFollower) waveFollower.enabled = false;
 
 

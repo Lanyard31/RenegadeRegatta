@@ -13,7 +13,6 @@ public class DeathHandler : MonoBehaviour
 
     [Header("Death UI")]
     public GameObject shipwreckedUIPanel;
-    public MusicController musicController;
 
     [Header("Death Animation")]
     public float deathTiltZ = 20f;
@@ -51,6 +50,9 @@ public class DeathHandler : MonoBehaviour
         GetComponent<Collider>().enabled = false;
         GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
         GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+        //turn off RigidBody
+        GetComponent<Rigidbody>().isKinematic = true;
+        MusicController.Instance.ChangeToLevelMusic();
 
         if (shipwreckedUIPanel != null)
             shipwreckedUIPanel.SetActive(true);
@@ -76,11 +78,18 @@ public class DeathHandler : MonoBehaviour
         while (elapsed < sinkDuration)
         {
             float t = elapsed / sinkDuration;
+
+            // Ease-in curve for sinking. Starts slower, ends faster.
+            float easedT = t * t;               // quadratic
+                                                // float easedT = t * t * t;        // cubic, if you want extra drama
+
             transform.localRotation = Quaternion.Slerp(startRot, targetRot, t);
-            transform.localPosition = Vector3.Lerp(startPos, targetPos, t);
+            transform.localPosition = Vector3.Lerp(startPos, targetPos, easedT);
+
             elapsed += Time.deltaTime;
             yield return null;
         }
+
 
         transform.localRotation = targetRot;
         transform.localPosition = targetPos;

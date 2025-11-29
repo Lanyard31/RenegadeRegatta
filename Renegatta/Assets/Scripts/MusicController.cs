@@ -57,15 +57,15 @@ public class MusicController : MonoBehaviour
         if (audioSource.clip == clip) yield break;
         while (audioSource.volume > 0)
         {
-            audioSource.volume -= 0.005f;
+            audioSource.volume -= 0.001f;
             yield return new WaitForSeconds(0.05f);
         }
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(3.5f);
         audioSource.clip = clip;
         audioSource.Play();
         while (audioSource.volume < originalVolume)
         {
-            audioSource.volume += 0.005f;
+            audioSource.volume += 0.003f;
             yield return new WaitForSeconds(0.05f);
         }
     }

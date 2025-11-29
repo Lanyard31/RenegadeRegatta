@@ -21,9 +21,6 @@ public class PlayerHealth : MonoBehaviour
     public float regenDelayAfterInvuln = 0.8f;
     public float regenRatePerSecond = 8f;
 
-    [Header("Penalty to WindPush (0..1)")]
-    public AnimationCurve penaltyCurve = AnimationCurve.Linear(0, 0, 1, 1);
-
     [Header("Audio / SFX")]
     public AudioSource repairAudioSource;
     public AudioSource fireAudioSource;
@@ -47,7 +44,6 @@ public class PlayerHealth : MonoBehaviour
     {
         health = healthMax;
         UpdateFires();
-        PushPenalty();
         fireSFXvolumeOriginal = fireAudioSource.volume;
         repairInterruptAudioSourceVolumeOriginal = repairInterruptAudioSource.volume;
     }
@@ -61,7 +57,6 @@ public class PlayerHealth : MonoBehaviour
         health = Mathf.Max(0f, health - amount);
         OnHealthChanged?.Invoke(health);
         UpdateFires();
-        PushPenalty();
         TryInvokeHitFlash();
 
         if (regenCoroutine != null)
@@ -91,7 +86,6 @@ public class PlayerHealth : MonoBehaviour
         health = Mathf.Min(healthMax, health + amount);
         OnHealthChanged?.Invoke(health);
         UpdateFires();
-        PushPenalty();
     }
 
     public void StartRegenNow()
@@ -130,7 +124,6 @@ public class PlayerHealth : MonoBehaviour
             health = Mathf.Min(healthMax, health + regenRatePerSecond * Time.deltaTime);
             OnHealthChanged?.Invoke(health);
             UpdateFires();
-            PushPenalty();
             yield return null;
         }
 
@@ -211,15 +204,6 @@ public class PlayerHealth : MonoBehaviour
                 if (!ps.isPlaying) ps.Play();
             }
         }
-    }
-
-
-
-    private void PushPenalty()
-    {
-        float t = 1f - (health / healthMax);
-        float penalty = Mathf.Clamp01(penaltyCurve.Evaluate(t));
-        OnHealthPenaltyChanged?.Invoke(penalty);
     }
 
     void OnDisable()

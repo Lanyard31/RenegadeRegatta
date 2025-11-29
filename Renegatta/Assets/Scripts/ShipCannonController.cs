@@ -21,6 +21,8 @@ public class ShipCannonController : MonoBehaviour
     public Transform portCannonStern;
     private ObjectPool<GameObject> cannonballPool;
     private static readonly Vector3 poolInitPos = new Vector3(1000f, 1000f, 1000f);
+    [SerializeField] private AudioSource fuseAudioSource;
+    private float fuseVolumeOriginal;
 
     [Header("Reload Settings")]
     public float initialDelay = 3f;        // big first-time delay
@@ -90,6 +92,7 @@ public class ShipCannonController : MonoBehaviour
         reloadTimer = initialDelay;
         cannonsReady = false;
         SetPredictorsVisible(false);
+        fuseVolumeOriginal = fuseAudioSource.volume;
 
         // Warm pool
         for (int i = 0; i < 12; i++)
@@ -120,6 +123,10 @@ public class ShipCannonController : MonoBehaviour
         {
             SetPredictorsVisible(true);
             fakeForce = Mathf.SmoothDamp(fakeForce, force, ref fakeForceVelocity, fakeForceSmoothTime);
+            if (fuseAudioSource.isPlaying == false)
+            {
+                fuseAudioSource.Play();
+            }
         }
 
         if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.X))
@@ -142,6 +149,7 @@ public class ShipCannonController : MonoBehaviour
 
             FireAllCannons();
             OnCannonVisualSignal?.Invoke(0f);
+            fuseAudioSource.Stop();
         }
     }
 

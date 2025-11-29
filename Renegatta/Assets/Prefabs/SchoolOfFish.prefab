@@ -1,0 +1,135 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3182869938906818449
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 128960762100070596}
+  - component: {fileID: 5526934139966691513}
+  - component: {fileID: 7917958230887304815}
+  - component: {fileID: 171779341731458243}
+  m_Layer: 0
+  m_Name: SchoolOfFish
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &128960762100070596
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3182869938906818449}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -241.8, y: -7.38, z: -83.7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5526934139966691513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3182869938906818449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90d32538dced4284b99b9ea08b37bb45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SchoolOfFish
+  fishPrefabs:
+  - {fileID: 7206346733388345847, guid: 1495f89617e1ac44686d1971de51c4bf, type: 3}
+  - {fileID: 4314161489066835213, guid: 0b02f23768c7a0240846adaa40f0e564, type: 3}
+  - {fileID: 2909048284647647917, guid: fe52892f917d5ec4a9fad07599914a53, type: 3}
+  - {fileID: 184675847828092861, guid: 53e146deb8ee0a843b669e523584cfe6, type: 3}
+  - {fileID: 2552671844760119945, guid: 6ac62bc046b78d144bef2a0e628d82d5, type: 3}
+  - {fileID: 9028077190568231609, guid: 29698e48dd79a2a4dacdab7e09a07dde, type: 3}
+  - {fileID: 8066187670972948469, guid: fd19372a72fb6b345b35fc0191be3900, type: 3}
+  - {fileID: 1331250572221036690, guid: 8232b0b3ac1ed684ab70fd40ec782bf3, type: 3}
+  - {fileID: 1536843517053375575, guid: ac89b2ef748912a43b3d133d7cd720c2, type: 3}
+  - {fileID: 6510987939874402664, guid: 55bd5a58451fc96469ce4d4b8e66132e, type: 3}
+  - {fileID: 1465181154044907004, guid: c9d21a80be8faa740be277343139fff5, type: 3}
+  - {fileID: 7775739741393635707, guid: b2f7f8aa3af94ed49ad087928c7a15c2, type: 3}
+  - {fileID: 92497191984817677, guid: da2d41113277e6342999630d480de12f, type: 3}
+  - {fileID: 4391935715160537513, guid: 43ed49ea3733b2441aad7cce43766b99, type: 3}
+  - {fileID: 2544605141724561648, guid: bcb5f89378b49f641a593d96d7010c29, type: 3}
+  - {fileID: 4818896874322554446, guid: 00463c72a77b4894fa64e5ab52a04f2f, type: 3}
+  - {fileID: 5891226785194532487, guid: 46d47ace7bfb6c045b210bd3e8f0eecb, type: 3}
+  - {fileID: 8622984731438788743, guid: 99a151ee6bc9c11439368f4705f39206, type: 3}
+  - {fileID: 3602320439311450983, guid: e687f71822e5a7b4fa27077d01d0d475, type: 3}
+  - {fileID: 6958174832671200110, guid: 5def1ef6b909c7847a6675421197ff75, type: 3}
+  - {fileID: 6280940779373815799, guid: 91cb05c2569bea94392ca3c1c0cf1472, type: 3}
+  - {fileID: 3987181873358747046, guid: b788bc4ab2d70de4897c4f9cc22aa3e8, type: 3}
+  - {fileID: 6742890190357792748, guid: 3a0a1da01fb7da4469ba5ff5f182c6bd, type: 3}
+  - {fileID: 8420684796371704251, guid: 09fb8092ab3e4d44994530dcf1ffed6d, type: 3}
+  - {fileID: 4688676499626308042, guid: 0e448e8b285a5e54aaf57bbe42f8e396, type: 3}
+  - {fileID: 7774326845647256262, guid: 95d1f7f9a6622ab4a8e1e34c14976dce, type: 3}
+  - {fileID: 6502596866369865551, guid: f57c478525fc69c469a15625c1f44097, type: 3}
+  - {fileID: 3665091497537222182, guid: e99b9c2924b807745bf6049db27e44c7, type: 3}
+  - {fileID: 2690723295264585734, guid: caa7c6806ed865946b3422be568a5acd, type: 3}
+  - {fileID: 7359338685732064734, guid: 4d516b0a2b8a06b4081cb07649fedddc, type: 3}
+  - {fileID: 3456531798994328118, guid: 17edd762b376c1f458b4e01f9c15c16c, type: 3}
+  - {fileID: 4010596388117761114, guid: 3e20d8e19d426344ea4111bd1f087d29, type: 3}
+  - {fileID: 4523671466260567008, guid: d87ca0710095fb24ba90df5543270519, type: 3}
+  - {fileID: 8138693550640892485, guid: 97e008540414a3b40922f48b47405797, type: 3}
+  - {fileID: 2538958510455607145, guid: 494193552f1ddcd4aa44af2989d8caad, type: 3}
+  - {fileID: 6894118194348484911, guid: 0d13f52eb2dabc340a12eaf4a1293a21, type: 3}
+  - {fileID: 7093988455960538664, guid: 68f438a301c330b4885e36e612cf3fff, type: 3}
+  - {fileID: 1501394559167870041, guid: 1f0131967efa35c4e83c282af4399dcd, type: 3}
+  - {fileID: 7410309649245827894, guid: d1e61cd45f6bde04faca33869c9e3b06, type: 3}
+  - {fileID: 6430018797071504065, guid: 1bd2d3501904dca45b294090776b6208, type: 3}
+  - {fileID: 6378786065993609, guid: b708b3a65194d5440b9b530a824beeb5, type: 3}
+  minCount: 5
+  maxCount: 15
+  spawnRadius: 5
+  spawnDepthOffset: -1
+  player: {fileID: 0}
+  activationDistance: 200
+  boxSize: {x: 20, y: 10, z: 20}
+  boxCenter: {x: 0, y: -2, z: 0}
+  waterLevelY: -8
+--- !u!114 &7917958230887304815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3182869938906818449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e17482ac4b957b4aba82c1ee88c6055, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SchoolWaveFollower
+  water: {fileID: 0}
+  depthOffset: -2.2
+  followSpeed: 4
+--- !u!65 &171779341731458243
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3182869938906818449}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 20, y: 10, z: 20}
+  m_Center: {x: 0, y: 0, z: 0}

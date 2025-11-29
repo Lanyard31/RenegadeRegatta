@@ -3,10 +3,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using EasyTransition;
+using Unity.VisualScripting;
 
 public class VictoryHandler : MonoBehaviour
 {
     [Header("Player References")]
+    [SerializeField] private GameObject player;
     [SerializeField] private Behaviour[] componentsToDisable;
     [SerializeField] private ParticleSystem[] particlesToStop;
 
@@ -22,7 +24,6 @@ public class VictoryHandler : MonoBehaviour
     [SerializeField] private TransitionSettings transitionSettings;
     [SerializeField] private float transitionDuration = 1f;
     [SerializeField] private TransitionManager transitionManager;
-    [SerializeField] private MusicController musicController;
 
     private float timer;
     private bool victoryTriggered;
@@ -54,8 +55,6 @@ public class VictoryHandler : MonoBehaviour
 
     private void PanelPopup()
     {
-        musicController.ChangeToVictoryMusic();
-
         // Disable movement etc.
         foreach (var c in componentsToDisable)
         {
@@ -67,7 +66,12 @@ public class VictoryHandler : MonoBehaviour
         {
             if (p != null)
                 p.Stop();
+                p.gameObject.SetActive(false);
         }
+
+        //Stop the player's rigidBody movement
+        player.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
+        player.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
 
         // UI
         victoryPanel.SetActive(true);
@@ -100,7 +104,7 @@ public class VictoryHandler : MonoBehaviour
 
     public void Retry()
     {
-        musicController.ChangeToLevelMusic();
+        MusicController.Instance.ChangeToLevelMusic();
         Scene current = SceneManager.GetActiveScene();
         transitionManager.Transition(
             current.name,
@@ -111,7 +115,9 @@ public class VictoryHandler : MonoBehaviour
 
     public void ReturnToMenu()
     {
-        musicController.dontDestroyOnLoad = false;
+        MusicController.Instance.dontDestroyOnLoad = false;
+        //destroy the music controller
+        Destroy(MusicController.Instance.gameObject);
 
         transitionManager.Transition(
             "StartScene",
