@@ -65,6 +65,7 @@ public class PlayerHealth : MonoBehaviour
             StopCoroutine(regenCoroutine);
             regenCoroutine = null;
             repairAudioSource.Stop();
+            HealFX.Stop();
             repairInterruptAudioSource.volume = UnityEngine.Random.Range(0.9f, 1.1f) * repairInterruptAudioSourceVolumeOriginal;
             repairInterruptAudioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
             repairInterruptAudioSource.Play();
@@ -214,6 +215,7 @@ public class PlayerHealth : MonoBehaviour
     void OnDisable()
     {
         repairAudioSource.Stop();
+        HealFX.Stop();
     }
     //lambda expression to get current health 
     public float GetHealthValue() => health;
