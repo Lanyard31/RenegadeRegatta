@@ -11,6 +11,7 @@ public class BoatCollisionBounce : MonoBehaviour
     private float nudgeMultiplier = 1.75f;  // Scales lateral nudge when hit from below
     public HitVFXPool hitVFXPool;
     private PlayerHealth playerHealth;
+    public WaterRushController waterRushController;
 
     private Rigidbody rb;
 
@@ -45,12 +46,6 @@ public class BoatCollisionBounce : MonoBehaviour
 
             //Debug.Log($"Hit from below. Velocity: {rb.linearVelocity}, pushDir: {pushDir}");
 
-var rush = GetComponent<WaterRushController>();
-if (rush != null)
-{
-    rush.OnGroundedBounce();
-}
-
         }
         else
         {
@@ -65,9 +60,18 @@ if (rush != null)
             rb.linearVelocity = rb.linearVelocity.normalized * maxBounceSpeed;
 
         if (hitVFXPool != null)
+        {
             //raise slightly on Y axis
             hitVFXPool.Get(contact.point + new Vector3(0, 0.15f, 0));
+        }
+
+        if (waterRushController != null)
+        {
+            waterRushController.OnGroundedBounce();
+        }
 
         playerHealth.ApplyDamage(damageTaken);
     }
+
+
 }

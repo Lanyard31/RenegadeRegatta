@@ -125,4 +125,6 @@ public class VictoryHandler : MonoBehaviour
             transitionDuration
         );
     }
+
+    public float Timer => timer;
 }

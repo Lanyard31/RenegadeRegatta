@@ -8,85 +8,110 @@ public class WaterRushController : MonoBehaviour
     [SerializeField] private AudioSource waterAudio;
 
     [Header("Volume Settings")]
-    [Tooltip("How fast the volume interpolates to its target.")]
     [SerializeField] private float volumeLerpSpeed = 3f;
 
     [Tooltip("The minimum efficiency before particles fully shut off.")]
     [SerializeField] private float particleCutoff = 0.15f;
 
-    [Header("Water Particles")]
-    [Tooltip("Bow spray, wake spray, anything visually implying speed.")]
+    [Header("Water Particles & VFX")]
     [SerializeField] private List<GameObject> waterParticles;
 
     private float originalVolume;
 
-    // Tracks whether particles are currently enabled to avoid spam toggling
+    [SerializeField] private float particleResetTimer = 1.5f;
+    private float particleTimerRemaining = 0f;
+
     private bool particlesActive = true;
 
     void Awake()
     {
         if (waterAudio == null)
-        {
             waterAudio = GetComponent<AudioSource>();
-        }
 
         originalVolume = waterAudio.volume;
     }
 
-void Update()
-{
-    float eff = ComputeEfficiency();
-
-    // Clamp efficiency between a tiny floor and full speed
-    eff = Mathf.Clamp(eff, 0.001f, 1f);
-
-    // -------- Volume Lerp --------
-    float targetVolume = originalVolume * eff;
-
-    // Hard clamp the target volume between your original and a floor
-    targetVolume = Mathf.Clamp(targetVolume, 0.001f, originalVolume);
-
-    waterAudio.volume = Mathf.Lerp(waterAudio.volume, targetVolume, Time.deltaTime * volumeLerpSpeed);
-
-    // -------- Particle Control --------
-    bool shouldBeActive = eff > particleCutoff;
-
-    if (shouldBeActive != particlesActive)
+    void Update()
     {
-        SetParticlesActive(shouldBeActive);
-        particlesActive = shouldBeActive;
+        float eff = Mathf.Clamp(ComputeEfficiency(), 0.001f, 1f);
+
+        // Volume control
+        float targetVolume = Mathf.Clamp(originalVolume * eff, 0.001f, originalVolume);
+        waterAudio.volume = Mathf.Lerp(waterAudio.volume, targetVolume, Time.deltaTime * volumeLerpSpeed);
+
+        // --- 1. Cooldown state ---
+        if (particleTimerRemaining > 0f)
+        {
+            particleTimerRemaining -= Time.deltaTime;
+
+            if (particlesActive)
+                SetParticles(false);
+
+            return;
+        }
+
+        bool shouldBeActive = eff > particleCutoff;
+
+        // --- 2. Reactivate ---
+        if (shouldBeActive && !particlesActive)
+        {
+            SetParticles(true);
+            return;
+        }
+
+        // --- 3. Deactivate ---
+        if (!shouldBeActive && particlesActive)
+        {
+            SetParticles(false);
+        }
     }
-}
 
-
+    // Efficiency from wind categories
     private float ComputeEfficiency()
     {
-        // Using WindPushNew’s alignment categories for scaling.
-        // This gives us a consistent max-speed curve regardless of hull physics weirdness.
         switch (wind.AlignmentCategory)
         {
             case "Perfect": return 1f;
             case "Broad Reach": return 0.85f;
             case "Beam Reach": return 0.75f;
             case "Close Reach": return 0.65f;
-            default: return 0.001f; // Misaligned, stalled, etc.
+            default: return 0.001f;
         }
     }
 
-    private void SetParticlesActive(bool state)
+    // Unified activation handler
+    private void SetParticles(bool on)
     {
+        particlesActive = on;
+
         for (int i = 0; i < waterParticles.Count; i++)
         {
-            if (waterParticles[i] != null)
-                waterParticles[i].SetActive(state);
+            var go = waterParticles[i];
+            if (go == null) continue;
+
+            go.SetActive(on);
+
+            if (on)
+            {
+                // ParticleSystem
+                var ps = go.GetComponent<ParticleSystem>();
+                if (ps != null) ps.Play(true);
+
+                // VFX Graph
+                var vfx = go.GetComponent<UnityEngine.VFX.VisualEffect>();
+                if (vfx != null) vfx.Play();
+
+                // TrailRenderer
+                var trail = go.GetComponent<TrailRenderer>();
+                if (trail != null) trail.Clear();
+            }
         }
     }
 
-    // Called externally when the boat is launched upward during a ground hit
+    // External bounce trigger
     public void OnGroundedBounce()
     {
-        // Immediately shut particles off since the boat isn't cutting water
-        SetParticlesActive(false);
-        particlesActive = false;
+        SetParticles(false);
+        particleTimerRemaining = particleResetTimer;
     }
 }

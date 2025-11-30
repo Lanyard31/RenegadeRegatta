@@ -36,6 +36,10 @@ public class WindPushNew : MonoBehaviour
     private string previousAlignmentCategory = "";
     public string AlignmentCategory { get; private set; }
 
+    // Ramp-up control
+    [SerializeField] private float startupDuration = 4f;
+    private float rampedMaxSpeed = 0f;
+    private float rampVel = 0f;
 
     void Awake()
     {
@@ -56,6 +60,13 @@ public class WindPushNew : MonoBehaviour
 
     void FixedUpdate()
     {
+        rampedMaxSpeed = Mathf.SmoothDamp(
+            rampedMaxSpeed,
+            maxSpeedAligned,
+            ref rampVel,
+            startupDuration
+        );
+
         // Flatten sail forward to horizontal plane
         Vector3 sparsForward = Vector3.ProjectOnPlane(mainSpars.up, Vector3.up).normalized;
 
@@ -106,7 +117,7 @@ public class WindPushNew : MonoBehaviour
         Vector3 forwardVel = Vector3.Dot(rb.linearVelocity, hull.right) * hull.right;
         float boatSpeed = forwardVel.magnitude;
 
-        if (boatSpeed < (maxSpeedAligned * efficiency))
+        if (boatSpeed < (rampedMaxSpeed * efficiency))
         {
             pushDir = hull.right;
             rb.AddForce(pushDir * accelerationForce * efficiency, ForceMode.Acceleration);

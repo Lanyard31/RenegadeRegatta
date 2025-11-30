@@ -123,9 +123,18 @@ public class SimpleShipController : MonoBehaviour
             mainSpars.Rotate(0f, 0f, deltaAngle, Space.Self);
             foreSpars.Rotate(0f, 0f, deltaAngle, Space.Self);
 
-            if (ropePullAudioSource.isPlaying == false)
+            // audio logic that actually makes sense
+            bool atLimit = sparsCurrentAngle <= -maxSparsAngle || sparsCurrentAngle >= maxSparsAngle;
+
+            if (!atLimit)
             {
-                ropePullAudioSource.Play();
+                if (!ropePullAudioSource.isPlaying)
+                    ropePullAudioSource.Play();
+            }
+            else
+            {
+                if (ropePullAudioSource.isPlaying)
+                    ropePullAudioSource.Stop();
             }
         }
         else

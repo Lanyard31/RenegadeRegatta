@@ -30,6 +30,7 @@ public class PlayerHealth : MonoBehaviour
 
     [Header("References")]
     public MonoBehaviour hitFlash;
+    public ParticleSystem HealFX;
 
     // Events
     public event Action<float> OnHealthChanged;
@@ -119,6 +120,8 @@ public class PlayerHealth : MonoBehaviour
             if (!repairAudioSource.isPlaying) repairAudioSource.Play();
         }
 
+        HealFX.Play();
+
         while (health < healthMax)
         {
             health = Mathf.Min(healthMax, health + regenRatePerSecond * Time.deltaTime);
@@ -129,6 +132,8 @@ public class PlayerHealth : MonoBehaviour
 
         if (repairAudioSource != null && repairAudioSource.isPlaying)
             repairAudioSource.Stop();
+
+        HealFX.Stop();
 
         regenCoroutine = null;
     }
