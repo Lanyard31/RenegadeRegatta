@@ -31,6 +31,7 @@ public class PlayerHealth : MonoBehaviour
     [Header("References")]
     public MonoBehaviour hitFlash;
     public ParticleSystem HealFX;
+    public ShipHullSquash hullSquash;
 
     // Events
     public event Action<float> OnHealthChanged;
@@ -59,6 +60,7 @@ public class PlayerHealth : MonoBehaviour
         OnHealthChanged?.Invoke(health);
         UpdateFires();
         TryInvokeHitFlash();
+        hullSquash.TriggerSquash();
 
         if (regenCoroutine != null)
         {

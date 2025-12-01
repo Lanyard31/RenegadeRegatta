@@ -15,6 +15,7 @@ public class VictoryHandler : MonoBehaviour
     [Header("Victory UI")]
     [SerializeField] private GameObject victoryPanel;
     [SerializeField] private TMP_Text timerText;
+    [SerializeField] private VictoryGradeDisplay victoryGradeDisplay;
 
     [Header("Fireworks")]
     [SerializeField] private ParticleSystem fireworks;
@@ -80,6 +81,8 @@ public class VictoryHandler : MonoBehaviour
         // Fireworks loop
         if (fireworks != null)
             StartCoroutine(FireworksRoutine());
+
+        victoryGradeDisplay.DisplayGrade();
     }
 
     private void UpdateTimerDisplay()

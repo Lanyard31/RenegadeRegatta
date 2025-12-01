@@ -1,7 +1,6 @@
 ﻿<Solution>
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
-  <Project Path="Danqzq.LeaderboardCreator.csproj" />
   <Project Path="Heathen.Ballistics.csproj" />
   <Project Path="DrawXXL.csproj" />
   <Project Path="DrawXXL-Editor.csproj" />
@@ -14,6 +13,5 @@
   <Project Path="CFXR.WelcomeScreen.csproj" />
   <Project Path="OmniShade.Editor.csproj" />
   <Project Path="KinoBloom.Runtime.csproj" />
-  <Project Path="LeaderboardCreatorEditor.csproj" />
   <Project Path="kTools.Mirrors.Editor.csproj" />
 </Solution>

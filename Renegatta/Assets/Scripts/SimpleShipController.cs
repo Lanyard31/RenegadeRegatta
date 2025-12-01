@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -158,4 +159,9 @@ public class SimpleShipController : MonoBehaviour
         foreSpars.Rotate(0f, 0f, delta, Space.Self);
     }
 
+    void OnDisable()
+    {
+        wheelTurnAudioSource.Stop();
+        ropePullAudioSource.Stop();
+    }
 }

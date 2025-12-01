@@ -128,7 +128,7 @@ public class SchoolOfFish : MonoBehaviour
     {
         if (!active || scattered) return;
         // Scare by tag or layer - adapt to your tags
-        if (other.CompareTag("Player") || other.CompareTag("Projectile") || other.CompareTag("Rock"))
+        if (other.CompareTag("Player") || other.CompareTag("Cannonball"))
         {
             Scatter();
         }

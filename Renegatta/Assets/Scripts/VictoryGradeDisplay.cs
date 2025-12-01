@@ -12,7 +12,7 @@ public class VictoryGradeDisplay : MonoBehaviour
     [SerializeField] private float popDuration = 0.35f;
     [SerializeField] private float popOvershoot = 1.25f;
 
-    private void OnEnable()
+    public void DisplayGrade()
     {
         transform.localScale = Vector3.zero;
         StartCoroutine(RevealRoutine());
@@ -64,6 +64,7 @@ public class VictoryGradeDisplay : MonoBehaviour
         if (minutes > 5f) return "A";
         if (minutes > 4.5f) return "A+";
         if (minutes > 4f) return "S";
-        return "S+";
+        if (minutes > 3.5f) return "S+";
+        return "S++";
     }
 }

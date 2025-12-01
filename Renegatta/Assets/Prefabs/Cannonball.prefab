@@ -15013,8 +15013,30 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9a02fc1afc85faa4b810667d1b4c7dbd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8711005643387506128}
   m_SourcePrefab: {fileID: 100100000, guid: 9a02fc1afc85faa4b810667d1b4c7dbd, type: 3}
+--- !u!1 &5880067900823370074 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 9a02fc1afc85faa4b810667d1b4c7dbd, type: 3}
+  m_PrefabInstance: {fileID: 6727070850246099979}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8711005643387506128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5880067900823370074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed2e0b42842cc0a4485f68eccd7154ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CannonballSpin
+  minAngularVelocity: {x: -180, y: -180, z: -180}
+  maxAngularVelocity: {x: 180, y: 180, z: 180}
 --- !u!4 &6544260457408013280 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9a02fc1afc85faa4b810667d1b4c7dbd, type: 3}

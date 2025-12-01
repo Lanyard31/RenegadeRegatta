@@ -9,6 +9,7 @@ public class ShipCannonController : MonoBehaviour
     [Header("References")]
     [SerializeField] Rigidbody shipRigidbody;
     [SerializeField] PlayerHealth playerHealth;
+    [SerializeField] ParticleSystem[] cannonSparks;
     public GameObject cannonballPrefab;
 
     [Header("Cannon Settings")]
@@ -127,6 +128,14 @@ public class ShipCannonController : MonoBehaviour
             {
                 fuseAudioSource.Play();
             }
+            //ensure all cannonsparks are playing
+            foreach (ParticleSystem spark in cannonSparks)
+            {
+                if (spark.isPlaying == false)
+                {
+                    spark.Play();
+                }
+            }
         }
 
         if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.X))
@@ -150,6 +159,10 @@ public class ShipCannonController : MonoBehaviour
             FireAllCannons();
             OnCannonVisualSignal?.Invoke(0f);
             fuseAudioSource.Stop();
+            foreach (ParticleSystem spark in cannonSparks)
+            {
+                spark.Stop();
+            }
         }
     }
 
