@@ -65,7 +65,7 @@ public class TutorialPopups : MonoBehaviour
         {
             case TutorialTrigger.TriggerKind.HowToSail:
                 Debug.Log("triggerHowToSail");
-                Show("Press <sprite name=q> and <sprite name=e> to rotate your sails so that they fill with wind. Remember to check your sail trim regularly.", CheckSailInput);
+                Show("Press <sprite name=q> and <sprite name=e> to rotate your sails so that they fill with wind. Remember to check your sail trim regularly." + System.Environment.NewLine + "Go Explore The Archipelago.", CheckSailInput);
                 break;
 
             case TutorialTrigger.TriggerKind.HowToTack:

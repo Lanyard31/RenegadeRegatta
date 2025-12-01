@@ -37,9 +37,13 @@ public class WindPushNew : MonoBehaviour
     public string AlignmentCategory { get; private set; }
 
     // Ramp-up control
+    [Header("Ramp-up")]
     [SerializeField] private float startupDuration = 4f;
+    [SerializeField] private AnimationCurve rampCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+    private float rampTimer = 0f;
     private float rampedMaxSpeed = 0f;
-    private float rampVel = 0f;
+
 
     void Awake()
     {
@@ -60,12 +64,23 @@ public class WindPushNew : MonoBehaviour
 
     void FixedUpdate()
     {
-        rampedMaxSpeed = Mathf.SmoothDamp(
-            rampedMaxSpeed,
-            maxSpeedAligned,
-            ref rampVel,
-            startupDuration
-        );
+        // Advance timer until 1
+        if (rampTimer < startupDuration)
+        {
+            rampTimer += Time.fixedDeltaTime;
+            float t = Mathf.Clamp01(rampTimer / startupDuration);
+
+            // Evaluate curve
+            float ramp = rampCurve.Evaluate(t);
+
+            // Final max speed
+            rampedMaxSpeed = maxSpeedAligned * ramp;
+        }
+        else
+        {
+            rampedMaxSpeed = maxSpeedAligned;
+        }
+
 
         // Flatten sail forward to horizontal plane
         Vector3 sparsForward = Vector3.ProjectOnPlane(mainSpars.up, Vector3.up).normalized;

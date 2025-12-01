@@ -144,8 +144,7 @@ PlayerSettings:
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
   bundleVersion: 0.1.0
-  preloadedAssets:
-  - {fileID: -944628639613478452, guid: 7fb6c1c790fa04865b379a6e8ccd7e9c, type: 3}
+  preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -868,7 +867,7 @@ PlayerSettings:
     PS5: 1
     QNX: 1
     VisionOS: 1
-    WebGL: 1
+    WebGL: 2
     Windows Store Apps: 1
     XboxOne: 1
     iPhone: 1
