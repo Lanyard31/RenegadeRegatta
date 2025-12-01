@@ -8,7 +8,6 @@ public class PauseScreen : MonoBehaviour
     [Header("UI")]
     public PlayerHealth playerHealth;
     public GameObject pausePanel;
-    
 
     [Header("Audio Sliders")]
     public Slider masterSlider;
@@ -21,6 +20,10 @@ public class PauseScreen : MonoBehaviour
 
     private bool isPaused = false;
     private bool canPause = true;
+
+    // Music mute tracking
+    private bool isMusicMuted = false;
+    private float musicBeforeMute = 0.9f;
 
     private void OnEnable()
     {
@@ -42,7 +45,7 @@ public class PauseScreen : MonoBehaviour
         // Add listeners for sliders
         masterSlider.onValueChanged.AddListener(SetMasterVolume);
         sfxSlider.onValueChanged.AddListener(SetSFXVolume);
-        musicSlider.onValueChanged.AddListener(SetMusicVolume);
+        musicSlider.onValueChanged.AddListener(SetMusicVolumeWithUnmute);
         ambientSlider.onValueChanged.AddListener(SetAmbientVolume);
     }
 
@@ -51,6 +54,11 @@ public class PauseScreen : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P) && canPause)
         {
             TogglePause();
+        }
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            ToggleMusicMute();
         }
     }
 
@@ -105,6 +113,16 @@ public class PauseScreen : MonoBehaviour
         PlayerPrefs.SetFloat("MusicVolume", value);
     }
 
+    // Slider listener that also unmutes if muted
+    private void SetMusicVolumeWithUnmute(float value)
+    {
+        if (isMusicMuted)
+        {
+            isMusicMuted = false; // unmute if slider is adjusted
+        }
+        SetMusicVolume(value);
+    }
+
     private void SetAmbientVolume(float value)
     {
         audioMixer.SetFloat("AmbientVolume", LinearToDecibel(value));
@@ -113,9 +131,28 @@ public class PauseScreen : MonoBehaviour
 
     private float LinearToDecibel(float linear)
     {
-        // Prevent log(0)
-        linear = Mathf.Clamp(linear, 0.0001f, 1f);
+        linear = Mathf.Clamp(linear, 0.0001f, 1f); // Prevent log(0)
         return 20f * Mathf.Log10(linear);
     }
+
+    private void ToggleMusicMute()
+    {
+        if (!isMusicMuted)
+        {
+            // Save current music volume and mute
+            musicBeforeMute = musicSlider.value;
+            SetMusicVolume(0f);
+            musicSlider.value = 0f; // update slider visually
+            isMusicMuted = true;
+        }
+        else
+        {
+            // Restore previous music volume
+            SetMusicVolume(musicBeforeMute);
+            musicSlider.value = musicBeforeMute; // update slider visually
+            isMusicMuted = false;
+        }
+    }
+
     #endregion
 }

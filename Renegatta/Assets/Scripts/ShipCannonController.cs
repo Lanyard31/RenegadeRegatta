@@ -10,6 +10,7 @@ public class ShipCannonController : MonoBehaviour
     [SerializeField] Rigidbody shipRigidbody;
     [SerializeField] PlayerHealth playerHealth;
     [SerializeField] ParticleSystem[] cannonSparks;
+    [SerializeField] AudioSource cannonNotLoadedAudioSource;
     public GameObject cannonballPrefab;
 
     [Header("Cannon Settings")]
@@ -112,6 +113,15 @@ public class ShipCannonController : MonoBehaviour
             if (reloadTimer <= 0f)
             {
                 cannonsReady = true;
+            }
+        }
+
+        //if player presses space or X and cannons not ready, play SFX
+        if ((Input.GetKeyDown(KeyCode.Space) && !cannonsReady || Input.GetKeyDown(KeyCode.X) && !cannonsReady))
+        {
+            if (cannonNotLoadedAudioSource.isPlaying == false)
+            {
+                cannonNotLoadedAudioSource.Play();
             }
         }
 
