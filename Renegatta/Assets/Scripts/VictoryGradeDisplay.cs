@@ -65,6 +65,11 @@ public class VictoryGradeDisplay : MonoBehaviour
         if (minutes > 4.5f) return "A+";
         if (minutes > 4f) return "S";
         if (minutes > 3.5f) return "S+";
-        return "S++";
+        if (minutes > 3f) return "S++";
+        if (minutes > 2.5f) return "S+++";
+        if (minutes > 2f) return "Z";
+        if (minutes > 1.5f) return "ZZ";
+        if (minutes > 1f) return "ZZ+";
+        return "ZZ TOP";   
     }
 }
